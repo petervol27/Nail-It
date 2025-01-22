@@ -1,0 +1,41 @@
+Phase 2: After Ejecting to React Native CLI
+Once you eject to a bare React Native project, you’ll need to update Firebase configuration for native Android and iOS apps.
+
+Steps After Ejecting:
+Add Android and iOS Apps in Firebase Console:
+
+In the Firebase Console, go to Project Settings > General.
+Add a new app:
+Android:
+Package name: Use your app's package name (e.g., com.example.nailit).
+Download the google-services.json file and place it in the android/app folder.
+iOS:
+Bundle ID: Use your app's bundle ID (e.g., com.example.nailit).
+Download the GoogleService-Info.plist file and place it in the ios folder.
+Update Firebase Configuration: Modify firebase.js to include platform-specific configurations:
+
+javascript
+Copy
+Edit
+import { initializeApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
+import { Platform } from 'react-native';
+
+const firebaseConfig = {
+  apiKey: "your-api-key",
+  authDomain: "your-auth-domain",
+  projectId: "your-project-id",
+  storageBucket: "your-storage-bucket",
+  messagingSenderId: "your-messaging-sender-id",
+  appId: "your-app-id",
+  ...(Platform.OS === 'android' && {
+    databaseURL: "your-android-database-url", // Optional, if using Realtime Database
+  }),
+};
+
+const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
+Link Firebase Native SDKs:
+
+Android: Ensure the google-services.json file is in the correct location and the build.gradle files are configured.
+iOS: Ensure the GoogleService-Info.plist file is added to your Xcode project.
