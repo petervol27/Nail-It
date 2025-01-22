@@ -1,10 +1,37 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { logoutUser } from '../utils/auth';
 
 const ProfileScreen = () => {
+  const handleSignout = () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to log out?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Logout',
+          onPress: async () => {
+            try {
+              logoutUser().then((response) => alert(response));
+            } catch (error) {
+              alert(error.message);
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    );
+  };
   return (
     <View style={styles.container}>
       <Text>Profile Screen</Text>
+      <TouchableOpacity style={styles.button} onPress={handleSignout}>
+        <Text style={styles.buttonText}>Sign out</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -14,6 +41,18 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  button: {
+    backgroundColor: '#A96BAE',
+    alignSelf: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 5,
+  },
+  buttonText: {
+    fontSize: 16,
+    color: '#fff',
+    textAlign: 'center',
   },
 });
 export default ProfileScreen;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import {
   View,
   Text,
@@ -6,17 +6,25 @@ import {
   ImageBackground,
   TextInput,
   Button,
+  TouchableOpacity,
 } from 'react-native';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase';
+import { UserContext } from '../context/UserContext';
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const { setUser } = useContext(UserContext); // Access context
   const handleLogin = async () => {
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      setUser(userCredential.user);
       alert('Logged in succesfully!');
-      navigation.replace('Home');
+      navigation.navigate('Home', { screen: 'Dashboard' });
     } catch (error) {
       alert(error.message);
     }
@@ -37,7 +45,9 @@ const LoginScreen = ({ navigation }) => {
         onChangeText={setPassword}
         secureTextEntry
       />
-      <Button title="Login" onPress={handleLogin} />
+      <TouchableOpacity style={styles.button} onPress={handleLogin}>
+        <Text style={styles.buttonText}>Login</Text>
+      </TouchableOpacity>
       <Text style={styles.link} onPress={() => navigation.navigate('SignUp')}>
         Don't have an account? Sign Up
       </Text>
@@ -67,6 +77,18 @@ const styles = StyleSheet.create({
   link: {
     color: 'blue',
     marginTop: 15,
+    textAlign: 'center',
+  },
+  button: {
+    backgroundColor: '#A96BAE',
+    alignSelf: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 5,
+  },
+  buttonText: {
+    fontSize: 16,
+    color: '#fff',
     textAlign: 'center',
   },
 });

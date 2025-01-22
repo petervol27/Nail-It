@@ -19,8 +19,15 @@ const TabNavigator = () => {
           }
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: '#ff6347',
+        tabBarActiveTintColor: '#A96BAE',
         tabBarInactiveTintColor: 'gray',
+        tabBarStyle: {
+          backgroundColor: '#ffffff',
+          paddingBottom: 5,
+        },
+        headerStyle: {
+          backgroundColor: '#A96BAE',
+        },
       })}
     >
       <Tab.Screen name="Dashboard" component={DashboardScreen} />
