@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase';
+import generalStyles from '../assets/styles/generalStyles';
 
 const SignUpScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -28,24 +29,24 @@ const SignUpScreen = ({ navigation }) => {
     <View style={styles.container}>
       <Text style={styles.title}>Sign Up</Text>
       <TextInput
-        style={styles.input}
+        style={generalStyles.input}
         placeholder="Email"
         value={email}
         onChangeText={setEmail}
       />
       <TextInput
-        style={styles.input}
+        style={generalStyles.input}
         placeholder="Password"
         value={password}
         onChangeText={setPassword}
         secureTextEntry
       />
-      <TouchableOpacity style={styles.button} onPress={handleSignUp}>
+      <TouchableOpacity
+        style={[generalStyles.button, generalStyles.buttonMain]}
+        onPress={handleSignUp}
+      >
         <Text style={styles.buttonText}>Sign Up</Text>
       </TouchableOpacity>
-      <Text style={styles.link} onPress={() => navigation.navigate('Login')}>
-        Already have an account? Log In
-      </Text>
     </View>
   );
 };
@@ -61,26 +62,12 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlign: 'center',
   },
-  input: {
-    height: 50,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    marginBottom: 10,
-  },
   link: {
     color: 'blue',
     marginTop: 15,
     textAlign: 'center',
   },
-  button: {
-    backgroundColor: '#A96BAE',
-    alignSelf: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 5,
-  },
+
   buttonText: {
     fontSize: 16,
     color: '#fff',

@@ -25,9 +25,7 @@ const TabNavigator = () => {
           backgroundColor: '#ffffff',
           paddingBottom: 5,
         },
-        headerStyle: {
-          backgroundColor: '#A96BAE',
-        },
+        headerShown: false,
       })}
     >
       <Tab.Screen name="Dashboard" component={DashboardScreen} />

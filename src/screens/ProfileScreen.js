@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { logoutUser } from '../utils/auth';
+import generalStyles from '../assets/styles/generalStyles';
 
 const ProfileScreen = () => {
   const handleSignout = () => {
@@ -29,7 +30,10 @@ const ProfileScreen = () => {
   return (
     <View style={styles.container}>
       <Text>Profile Screen</Text>
-      <TouchableOpacity style={styles.button} onPress={handleSignout}>
+      <TouchableOpacity
+        style={[generalStyles.button, generalStyles.buttonMain]}
+        onPress={handleSignout}
+      >
         <Text style={styles.buttonText}>Sign out</Text>
       </TouchableOpacity>
     </View>
@@ -42,13 +46,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  button: {
-    backgroundColor: '#A96BAE',
-    alignSelf: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 5,
-  },
+
   buttonText: {
     fontSize: 16,
     color: '#fff',
