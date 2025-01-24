@@ -1,12 +1,8 @@
-import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import Spinner from '../components/Spinner';
-
-const DashboardScreen = () => {
+const FeedScreen = () => {
   return (
     <View style={styles.container}>
-      <Text>Dashboard Screen</Text>
-      <Spinner />
+      <Text>Feed Screen</Text>
     </View>
   );
 };
@@ -20,4 +16,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default DashboardScreen;
+export default FeedScreen;

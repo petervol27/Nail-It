@@ -44,6 +44,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     alignItems: 'center',
     marginBottom: 40,
+    marginHorizontal: 42,
   },
   buttonText: {
     fontSize: 16,

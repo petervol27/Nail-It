@@ -5,12 +5,13 @@ const generalStyles = StyleSheet.create({
 
   // Button Styles ----------------------------------------
   button: {
-    width: 305,
+    width: '100%',
     height: 51,
     borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 24,
+    alignSelf: 'center',
   },
   buttonMain: {
     backgroundColor: '#A96BAE',

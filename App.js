@@ -50,11 +50,7 @@ const App = () => {
             />
           </>
         ) : (
-          <Stack.Screen
-            name="Home"
-            component={TabNavigator}
-            options={{ headerShown: false }}
-          />
+          <Stack.Screen name="Main" component={TabNavigator} />
         )}
       </Stack.Navigator>
     </NavigationContainer>

@@ -1,4 +1,3 @@
-import React from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 
 const Spinner = ({ size = 'large', color = '#A96BAE' }) => {
