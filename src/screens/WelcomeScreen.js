@@ -14,7 +14,11 @@ const WelcomeScreen = ({ navigation }) => {
       <ImageBackground source={welcome} style={styles.image}>
         <View style={styles.buttonContainer}>
           <TouchableOpacity
-            style={[generalStyles.button, generalStyles.buttonMain]}
+            style={[
+              generalStyles.button,
+              generalStyles.buttonMain,
+              generalStyles.marginBtmSM,
+            ]}
             onPress={() => navigation.navigate('Login')}
           >
             <Text style={[styles.buttonText, styles.textLogin]}>Log in</Text>

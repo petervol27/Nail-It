@@ -6,7 +6,12 @@ import {
   TextInput,
   TouchableOpacity,
 } from 'react-native';
-
+import AppIcon from '../components/AppIcon';
+import hashIcon from '../assets/icons/hashtag.png';
+import googleIcon from '../assets/icons/google.png';
+import appleIcon from '../assets/icons/apple.png';
+import instaIcon from '../assets/icons/insta.png';
+import passwordIcon from '../assets/icons/password.png';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase';
 import { UserContext } from '../context/UserContext';
@@ -30,7 +35,10 @@ const LoginScreen = ({ navigation }) => {
   };
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Login</Text>
+      <AppIcon iconSource={hashIcon} color={'black'} />
+
+      <AppIcon iconSource={passwordIcon} color={'black'} />
+      <Text style={[styles.title, generalStyles.marginBtmXL]}>Log in</Text>
       <TextInput
         style={generalStyles.input}
         placeholder="enter email address"
@@ -38,17 +46,65 @@ const LoginScreen = ({ navigation }) => {
         onChangeText={setEmail}
       />
       <TextInput
-        style={generalStyles.input}
+        style={[generalStyles.input, generalStyles.marginTopSM]}
         placeholder="enter password"
         value={password}
         onChangeText={setPassword}
         secureTextEntry
       />
       <TouchableOpacity
-        style={[generalStyles.button, generalStyles.buttonMain]}
+        style={[
+          generalStyles.button,
+          generalStyles.buttonMain,
+          generalStyles.smallerButton,
+          generalStyles.marginBtmLG,
+          generalStyles.marginTopMD,
+        ]}
         onPress={handleLogin}
       >
-        <Text style={styles.buttonText}>Log in</Text>
+        <Text style={generalStyles.buttonText}>Log in</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[
+          generalStyles.button,
+          generalStyles.buttonBlack,
+          generalStyles.marginBtmSM,
+        ]}
+      >
+        <View style={styles.buttonContainer}>
+          <AppIcon iconSource={googleIcon} color="white" size={20} />
+          <Text style={[styles.BtnTextFlex, generalStyles.buttonText]}>
+            Log in With Google
+          </Text>
+        </View>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[
+          generalStyles.button,
+          generalStyles.buttonBlack,
+          generalStyles.marginBtmSM,
+        ]}
+      >
+        <View style={styles.buttonContainer}>
+          <AppIcon iconSource={instaIcon} color="white" size={20} />
+          <Text style={[styles.BtnTextFlex, generalStyles.buttonText]}>
+            Log in With Instagram
+          </Text>
+        </View>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[
+          generalStyles.button,
+          generalStyles.buttonBlack,
+          generalStyles.marginBtmSM,
+        ]}
+      >
+        <View style={styles.buttonContainer}>
+          <AppIcon iconSource={appleIcon} color="white" size={20} />
+          <Text style={[styles.BtnTextFlex, generalStyles.buttonText]}>
+            Log in With Apple
+          </Text>
+        </View>
       </TouchableOpacity>
       <Text
         style={styles.link}
@@ -77,10 +133,13 @@ const styles = StyleSheet.create({
     marginTop: 15,
     textAlign: 'center',
   },
-  buttonText: {
-    fontSize: 16,
-    color: '#fff',
-    textAlign: 'center',
+  BtnTextFlex: {
+    flex: 1,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
 });
 
