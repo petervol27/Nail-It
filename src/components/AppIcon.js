@@ -1,6 +1,6 @@
 import { Image, StyleSheet } from 'react-native';
 
-const AppIcon = ({ iconSource, color, size = null }) => {
+const AppIcon = ({ iconSource, color, social = false, size = null }) => {
   return (
     <Image
       source={iconSource}
@@ -8,6 +8,7 @@ const AppIcon = ({ iconSource, color, size = null }) => {
         styles.icon,
         { tintColor: color },
         size && { width: size, height: size },
+        social && { marginStart: 15 },
       ]}
       resizeMode="contain"
     />

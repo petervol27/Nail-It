@@ -10,6 +10,7 @@ import TabNavigator from './src/navigation/TabNavigator';
 import Spinner from './src/components/Spinner';
 import { checkUserAuth } from './src/utils/auth';
 import UserProvider, { UserContext } from './src/context/UserContext';
+import UserDetailsScreen from './src/screens/userDetailsScreen';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -44,6 +45,7 @@ const App = () => {
             <Stack.Screen name="Welcome" component={WelcomeScreen} />
             <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen name="SignUp" component={SignUpScreen} />
+            <Stack.Screen name="UserDetails" component={UserDetailsScreen} />
             <Stack.Screen
               name="ForgotPassword"
               component={ForgotPasswordScreen}

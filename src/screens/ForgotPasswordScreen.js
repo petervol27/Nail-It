@@ -6,11 +6,16 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '../firebase';
 import generalStyles from '../assets/styles/generalStyles';
-
+import AppIcon from '../components/AppIcon';
+import hashIcon from '../assets/icons/hashtag.png';
+import forgotPass from '../assets/images/forgotPass.png';
 const ForgotPasswordScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
 
@@ -25,63 +30,66 @@ const ForgotPasswordScreen = ({ navigation }) => {
         'Success',
         'Password reset email sent. Please check your inbox.'
       );
-      navigation.navigate('Login'); // Navigate back to Login screen
+      navigation.navigate('Login');
     } catch (error) {
       Alert.alert('Error', error.message);
     }
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Forgot Password</Text>
-      <Text style={styles.subtitle}>
-        Enter your email address to reset your password
-      </Text>
-      <TextInput
-        style={generalStyles.input}
-        placeholder="Enter your email"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
-      <TouchableOpacity
-        style={[generalStyles.button, generalStyles.buttonMain]}
-        onPress={handlePasswordReset}
-      >
-        <Text style={styles.buttonText}>Send Reset Link</Text>
-      </TouchableOpacity>
-    </View>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={20}
+    >
+      <View style={styles.topContainer}>
+        <Image source={forgotPass} resizeMode="cover" style={styles.image} />
+      </View>
+      <View style={styles.bottomContainer}>
+        <Text style={[generalStyles.title, generalStyles.marginBtmLG]}>
+          Forgot Password?
+        </Text>
+        <View style={generalStyles.inputContainer}>
+          <AppIcon iconSource={hashIcon} color={'black'} size={20} />
+          <TextInput
+            placeholder="enter email address"
+            value={email}
+            onChangeText={setEmail}
+          />
+        </View>
+        <TouchableOpacity
+          style={[
+            generalStyles.button,
+            generalStyles.buttonMain,
+            generalStyles.smallerButton,
+            generalStyles.marginTopSM,
+          ]}
+          onPress={handlePasswordReset}
+        >
+          <Text style={generalStyles.buttonText}>Send Code</Text>
+        </TouchableOpacity>
+      </View>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+  },
+
+  topContainer: {
+    flex: 0.6,
+  },
+  image: {
+    width: '100%',
+    height: '100%',
+  },
+  bottomContainer: {
+    flex: 0.4,
     paddingHorizontal: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: 16,
-    marginBottom: 20,
-    textAlign: 'center',
-    color: '#666',
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  link: {
-    color: 'black',
-    marginTop: 15,
-    textAlign: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

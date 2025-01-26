@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TextInput,
   TouchableOpacity,
+  KeyboardAvoidingView,
 } from 'react-native';
 import AppIcon from '../components/AppIcon';
 import hashIcon from '../assets/icons/hashtag.png';
@@ -35,28 +36,32 @@ const LoginScreen = ({ navigation }) => {
   };
   return (
     <View style={styles.container}>
-      <AppIcon iconSource={hashIcon} color={'black'} />
+      <Text style={[generalStyles.title, generalStyles.marginBtmXL]}>
+        Log in
+      </Text>
+      <View style={generalStyles.inputContainer}>
+        <AppIcon iconSource={hashIcon} color={'black'} size={20} />
+        <TextInput
+          placeholder="enter email address"
+          value={email}
+          onChangeText={setEmail}
+        />
+      </View>
+      <View style={[generalStyles.inputContainer, generalStyles.marginTopSM]}>
+        <AppIcon iconSource={passwordIcon} color={'black'} size={20} />
+        <TextInput
+          placeholder="enter password"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+        />
+      </View>
 
-      <AppIcon iconSource={passwordIcon} color={'black'} />
-      <Text style={[styles.title, generalStyles.marginBtmXL]}>Log in</Text>
-      <TextInput
-        style={generalStyles.input}
-        placeholder="enter email address"
-        value={email}
-        onChangeText={setEmail}
-      />
-      <TextInput
-        style={[generalStyles.input, generalStyles.marginTopSM]}
-        placeholder="enter password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
       <TouchableOpacity
         style={[
           generalStyles.button,
           generalStyles.buttonMain,
-          generalStyles.smallerButton,
+          generalStyles.smallestButton,
           generalStyles.marginBtmLG,
           generalStyles.marginTopMD,
         ]}
@@ -71,22 +76,8 @@ const LoginScreen = ({ navigation }) => {
           generalStyles.marginBtmSM,
         ]}
       >
-        <View style={styles.buttonContainer}>
-          <AppIcon iconSource={googleIcon} color="white" size={20} />
-          <Text style={[styles.BtnTextFlex, generalStyles.buttonText]}>
-            Log in With Google
-          </Text>
-        </View>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={[
-          generalStyles.button,
-          generalStyles.buttonBlack,
-          generalStyles.marginBtmSM,
-        ]}
-      >
-        <View style={styles.buttonContainer}>
-          <AppIcon iconSource={instaIcon} color="white" size={20} />
+        <View style={generalStyles.buttonContainer}>
+          <AppIcon iconSource={instaIcon} color="white" social={true} />
           <Text style={[styles.BtnTextFlex, generalStyles.buttonText]}>
             Log in With Instagram
           </Text>
@@ -99,8 +90,22 @@ const LoginScreen = ({ navigation }) => {
           generalStyles.marginBtmSM,
         ]}
       >
-        <View style={styles.buttonContainer}>
-          <AppIcon iconSource={appleIcon} color="white" size={20} />
+        <View style={generalStyles.buttonContainer}>
+          <AppIcon iconSource={googleIcon} color="white" social={true} />
+          <Text style={[styles.BtnTextFlex, generalStyles.buttonText]}>
+            Log in With Google
+          </Text>
+        </View>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[
+          generalStyles.button,
+          generalStyles.buttonBlack,
+          generalStyles.marginBtmSM,
+        ]}
+      >
+        <View style={generalStyles.buttonContainer}>
+          <AppIcon iconSource={appleIcon} color="white" social={true} />
           <Text style={[styles.BtnTextFlex, generalStyles.buttonText]}>
             Log in With Apple
           </Text>
@@ -122,11 +127,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 20,
   },
-  title: {
-    fontSize: 24,
-    marginBottom: 20,
-    textAlign: 'center',
-  },
 
   link: {
     color: 'black',
@@ -135,11 +135,7 @@ const styles = StyleSheet.create({
   },
   BtnTextFlex: {
     flex: 1,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    marginEnd: 25,
   },
 });
 
