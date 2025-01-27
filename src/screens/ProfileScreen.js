@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { logoutUser } from '../utils/auth';
 import generalStyles from '../assets/styles/generalStyles';
+import { UserContext } from '../context/UserContext';
 
 const ProfileScreen = () => {
+  const { user } = useContext(UserContext);
   const handleSignout = () => {
     Alert.alert(
       'Logout',

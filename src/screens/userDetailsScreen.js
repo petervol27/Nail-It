@@ -13,16 +13,15 @@ import { COUNTRIES, LANGUAGES } from '../utils/constants';
 import { UserContext } from '../context/UserContext';
 import generalStyles from '../assets/styles/generalStyles';
 import DropDownPicker from 'react-native-dropdown-picker';
+
 const UserDetailsScreen = ({ route, navigation }) => {
-  // const { name, email, password } = route.params; // Retrieve data from the previous screen
+  const { name, email, password } = route.params; // Retrieve data from the previous screen
   const [type, setType] = useState('personal'); // Default to "personal"
   const [country, setCountry] = useState('');
   const [language, setLanguage] = useState('');
   const { setUser } = useContext(UserContext);
   const [countryOpen, setCountryOpen] = useState(false);
-  const [countryValue, setCountryValue] = useState(null);
   const [languageOpen, setLanguageOpen] = useState(false);
-  const [languageValue, setLanguageValue] = useState(null);
   const [countries, setCountries] = useState(
     COUNTRIES.map((country) => ({
       label: country,
@@ -37,8 +36,11 @@ const UserDetailsScreen = ({ route, navigation }) => {
     }))
   );
   const handleSignUp = async () => {
-    if (!country || !language) {
-      alert('Please fill in all fields.');
+    if (!country) {
+      alert('Please fill Country');
+      return;
+    } else if (!language) {
+      alert('please fill in language');
       return;
     }
     try {
@@ -49,13 +51,17 @@ const UserDetailsScreen = ({ route, navigation }) => {
         password
       );
       const userId = userCredential.user.uid;
-      const user = userCredential.user;
 
       // Save additional data to Firestore
-      await createUserDocument(userId, { name, type, country, language });
-
+      await createUserDocument(userId, {
+        name,
+        type,
+        country,
+        language,
+        hasSeenInstructions: false,
+      });
       alert('Signed up successfully!');
-      setUser(user);
+      setUser(userCredential.user);
     } catch (error) {
       alert(error.message);
     }
@@ -143,7 +149,7 @@ const UserDetailsScreen = ({ route, navigation }) => {
         </Text>
         <DropDownPicker
           open={countryOpen}
-          value={countryValue}
+          value={country}
           items={countries}
           setOpen={(open) => {
             setCountryOpen(open);
@@ -151,7 +157,7 @@ const UserDetailsScreen = ({ route, navigation }) => {
               setLanguageOpen(false);
             }
           }}
-          setValue={setCountryValue}
+          setValue={setCountry}
           setItems={setCountries}
           placeholder="Select your country"
           style={[styles.dropdown, generalStyles.marginBtmSM]}
@@ -172,7 +178,7 @@ const UserDetailsScreen = ({ route, navigation }) => {
         </Text>
         <DropDownPicker
           open={languageOpen}
-          value={languageValue}
+          value={language}
           items={languages}
           setOpen={(open) => {
             setLanguageOpen(open);
@@ -180,7 +186,7 @@ const UserDetailsScreen = ({ route, navigation }) => {
               setCountryOpen(false);
             }
           }}
-          setValue={setLanguageValue}
+          setValue={setLanguage}
           setItems={setLanguages}
           placeholder="Select your language"
           style={[styles.dropdown, generalStyles.marginBtmLG]}

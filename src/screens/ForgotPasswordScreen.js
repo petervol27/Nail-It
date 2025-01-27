@@ -9,6 +9,8 @@ import {
   Image,
   KeyboardAvoidingView,
   Platform,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from 'react-native';
 import { sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '../firebase';
@@ -42,39 +44,51 @@ const ForgotPasswordScreen = ({ navigation }) => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={20}
     >
-      <View style={styles.topContainer}>
-        <Image source={forgotPass} resizeMode="cover" style={styles.image} />
-      </View>
-      <View style={styles.bottomContainer}>
-        <Text style={[generalStyles.title, generalStyles.marginBtmLG]}>
-          Forgot Password?
-        </Text>
-        <View style={generalStyles.inputContainer}>
-          <AppIcon iconSource={hashIcon} color={'black'} size={20} />
-          <TextInput
-            placeholder="enter email address"
-            value={email}
-            onChangeText={setEmail}
-          />
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.container}>
+          <View style={styles.topContainer}>
+            <Image
+              source={forgotPass}
+              resizeMode="cover"
+              style={styles.image}
+            />
+          </View>
+          <View style={styles.bottomContainer}>
+            <Text style={[generalStyles.title, generalStyles.marginBtmLG]}>
+              Forgot Password?
+            </Text>
+            <View style={generalStyles.inputContainer}>
+              <AppIcon iconSource={hashIcon} color={'black'} size={20} />
+              <TextInput
+                placeholder="enter email address"
+                value={email}
+                onChangeText={setEmail}
+                style={generalStyles.textInput}
+              />
+            </View>
+            <TouchableOpacity
+              style={[
+                generalStyles.button,
+                generalStyles.buttonMain,
+                generalStyles.smallerButton,
+                generalStyles.marginTopSM,
+              ]}
+              onPress={handlePasswordReset}
+            >
+              <Text style={generalStyles.buttonText}>Send Code</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-        <TouchableOpacity
-          style={[
-            generalStyles.button,
-            generalStyles.buttonMain,
-            generalStyles.smallerButton,
-            generalStyles.marginTopSM,
-          ]}
-          onPress={handlePasswordReset}
-        >
-          <Text style={generalStyles.buttonText}>Send Code</Text>
-        </TouchableOpacity>
-      </View>
+      </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+  },
+  innerContainer: {
     flex: 1,
   },
 

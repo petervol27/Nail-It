@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useContext, useEffect, useState } from 'react';
+import { ActivityIndicator } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { View, TouchableOpacity } from 'react-native';
 import HomeScreen from '../screens/HomeScreen';
 import ProfileScreen from '../screens/ProfileScreen';
@@ -9,23 +12,37 @@ import profileIcon from '../assets/icons/profile.png';
 import savedIcon from '../assets/icons/heart.png';
 import feedIcon from '../assets/icons/grid.png';
 import cameraIcon from '../assets/icons/camera.png';
-import notificationIcon from '../assets/icons/notification.png';
 import messageIcon from '../assets/icons/message.png';
 import logo from '../assets/images/logo.png';
 import SavedScreen from '../screens/SavedScreen';
 import FeedScreen from '../screens/FeedScreen';
 import CameraScreen from '../screens/CameraScreen';
 import { Image, StyleSheet } from 'react-native';
-const Tab = createBottomTabNavigator();
+import InstructionsScreen from '../screens/InstructionsScreen';
+import { UserContext } from '../context/UserContext';
+import Spinner from '../components/Spinner';
 
+const Tab = createBottomTabNavigator();
 const TabNavigator = () => {
-  // const [activeHeaderIcon, setActiveHeaderIcon] = useState(null);
-  // const handleIconPress = (iconName) => {
-  //   setActiveHeaderIcon(iconName);
-  // };
+  const [initialRoute, setInitialRoute] = useState(null);
+  const { user } = useContext(UserContext);
+  useEffect(() => {
+    if (user) {
+      if (user.hasSeenInstructions) {
+        setInitialRoute('Home');
+      } else {
+        setInitialRoute('Instructions');
+      }
+    }
+  }, [user]);
+  if (!initialRoute) {
+    return <Spinner />;
+  }
   return (
     <Tab.Navigator
+      initialRouteName={initialRoute}
       screenOptions={({ route }) => ({
+        animation: 'fade',
         tabBarIcon: ({ focused }) => {
           let iconSource;
           let size = null;
@@ -40,6 +57,7 @@ const TabNavigator = () => {
           } else if (route.name === 'Camera') {
             iconSource = cameraIcon;
             size = 28;
+          } else if (route.name === 'Instructions') {
           }
           const isCameraTab = route.name === 'Camera';
           const activeColor = isCameraTab ? 'black' : 'white';
@@ -59,29 +77,31 @@ const TabNavigator = () => {
         tabBarShowLabel: false,
         headerStyle: {
           backgroundColor: '#A96BAE',
+          borderBottomLeftRadius: 20,
+          borderBottomRightRadius: 20,
+          height: 116,
         },
+
         headerTitle: '',
         headerLeft: () => <Image source={logo} style={styles.logo} />,
         headerRight: () => (
           <View style={styles.headerIcons}>
             <TouchableOpacity>
-              <AppIcon
-                iconSource={notificationIcon}
-                // color={activeHeaderIcon === 'Notifications' ? 'white' : 'black'}
-                color={'black'}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity>
-              <AppIcon
-                iconSource={messageIcon}
-                // color={activeHeaderIcon === 'Messages' ? 'white' : 'black'}
-                color={'black'}
-              />
+              <AppIcon iconSource={messageIcon} color={'black'} />
             </TouchableOpacity>
           </View>
         ),
       })}
     >
+      <Tab.Screen
+        name="Instructions"
+        component={InstructionsScreen}
+        options={
+          {
+            // tabBarButton: () => null,
+          }
+        }
+      />
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Feed" component={FeedScreen} />
       <Tab.Screen
@@ -112,7 +132,6 @@ const TabNavigator = () => {
     </Tab.Navigator>
   );
 };
-
 export default TabNavigator;
 
 const styles = StyleSheet.create({

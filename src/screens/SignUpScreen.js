@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -7,22 +7,29 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from 'react-native';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../firebase';
 import generalStyles from '../assets/styles/generalStyles';
 import passwordIcon from '../assets/icons/password.png';
 import hashIcon from '../assets/icons/hashtag.png';
 import AppIcon from '../components/AppIcon';
+
 const SignUpScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [repeatPassword, setRepeatPassword] = useState('');
   const [name, setName] = useState('');
   const [agreed, setAgreed] = useState(false);
+
+  const emailInputRef = useRef(null);
+  const passwordInputRef = useRef(null);
+  const repeatPasswordInputRef = useRef(null);
+
   const toggleAgree = () => {
     setAgreed(!agreed);
   };
+
   const handleNext = async () => {
     if (!agreed) {
       alert('Please agree to the Terms & Conditions to continue.');
@@ -43,72 +50,102 @@ const SignUpScreen = ({ navigation }) => {
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={20}
+      keyboardVerticalOffset={0}
     >
-      <Text style={[generalStyles.title, generalStyles.marginBtmXL]}>
-        Sign Up
-      </Text>
-      <View style={[generalStyles.inputContainer, generalStyles.marginBtmSM]}>
-        <TextInput
-          style={generalStyles.marginStrtSM}
-          placeholder="enter you name"
-          value={name}
-          onChangeText={setName}
-        ></TextInput>
-      </View>
-      <View style={[generalStyles.inputContainer, generalStyles.marginBtmSM]}>
-        <AppIcon iconSource={hashIcon} color={'black'} size={20} />
-        <TextInput
-          placeholder="enter email address"
-          value={email}
-          onChangeText={setEmail}
-        />
-      </View>
-      <View style={[generalStyles.inputContainer, generalStyles.marginBtmSM]}>
-        <AppIcon iconSource={passwordIcon} color={'black'} size={20} />
-        <TextInput
-          placeholder="enter password"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
-      </View>
-      <View style={[generalStyles.inputContainer, generalStyles.marginBtmSM]}>
-        <AppIcon iconSource={passwordIcon} color={'black'} size={20} />
-        <TextInput
-          placeholder="enter password again"
-          value={repeatPassword}
-          onChangeText={setRepeatPassword}
-          secureTextEntry
-        />
-      </View>
-      <View
-        style={[
-          styles.checkboxRow,
-          generalStyles.marginBtmSM,
-          generalStyles.marginStrtXL,
-        ]}
-      >
-        <TouchableOpacity
-          style={[styles.checkbox, agreed && styles.checkboxChecked]}
-          onPress={toggleAgree}
-        >
-          {agreed && <Text style={styles.checkmark}>✓</Text>}
-        </TouchableOpacity>
-        <Text style={styles.termsText}>
-          I agree to the <Text style={styles.linkText}>Terms & Conditions</Text>
-        </Text>
-      </View>
-      <TouchableOpacity
-        style={[
-          generalStyles.button,
-          generalStyles.buttonMain,
-          generalStyles.smallestButton,
-        ]}
-        onPress={handleNext}
-      >
-        <Text style={[generalStyles.buttonText]}>Next</Text>
-      </TouchableOpacity>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.container}>
+          <Text style={[generalStyles.title, generalStyles.marginBtmXL]}>
+            Sign Up
+          </Text>
+          <View
+            style={[generalStyles.inputContainer, generalStyles.marginBtmSM]}
+          >
+            <TextInput
+              style={[generalStyles.marginStrtSM, generalStyles.textInput]}
+              placeholder="Enter your name"
+              value={name}
+              onChangeText={setName}
+              returnKeyType="next"
+              onSubmitEditing={() => emailInputRef.current?.focus()}
+            />
+          </View>
+          <View
+            style={[generalStyles.inputContainer, generalStyles.marginBtmSM]}
+          >
+            <AppIcon iconSource={hashIcon} color={'black'} size={20} />
+            <TextInput
+              ref={emailInputRef}
+              style={generalStyles.textInput}
+              placeholder="Enter email address"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              returnKeyType="next"
+              onSubmitEditing={() => passwordInputRef.current?.focus()}
+            />
+          </View>
+          <View
+            style={[generalStyles.inputContainer, generalStyles.marginBtmSM]}
+          >
+            <AppIcon iconSource={passwordIcon} color={'black'} size={20} />
+            <TextInput
+              ref={passwordInputRef}
+              style={generalStyles.textInput}
+              placeholder="Enter password"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              autoComplete="off"
+              textContentType="oneTimeCode"
+              returnKeyType="next"
+              onSubmitEditing={() => repeatPasswordInputRef.current?.focus()}
+            />
+          </View>
+          <View
+            style={[generalStyles.inputContainer, generalStyles.marginBtmSM]}
+          >
+            <AppIcon iconSource={passwordIcon} color={'black'} size={20} />
+            <TextInput
+              ref={repeatPasswordInputRef}
+              style={generalStyles.textInput}
+              placeholder="Enter password again"
+              value={repeatPassword}
+              onChangeText={setRepeatPassword}
+              secureTextEntry
+              returnKeyType="done"
+              onSubmitEditing={handleNext}
+            />
+          </View>
+          <View
+            style={[
+              styles.checkboxRow,
+              generalStyles.marginBtmSM,
+              generalStyles.marginStrtXL,
+            ]}
+          >
+            <TouchableOpacity
+              style={[styles.checkbox, agreed && styles.checkboxChecked]}
+              onPress={toggleAgree}
+            >
+              {agreed && <Text style={styles.checkmark}>✓</Text>}
+            </TouchableOpacity>
+            <Text style={styles.termsText}>
+              I agree to the{' '}
+              <Text style={styles.linkText}>Terms & Conditions</Text>
+            </Text>
+          </View>
+          <TouchableOpacity
+            style={[
+              generalStyles.button,
+              generalStyles.buttonMain,
+              generalStyles.smallestButton,
+            ]}
+            onPress={handleNext}
+          >
+            <Text style={[generalStyles.buttonText]}>Next</Text>
+          </TouchableOpacity>
+        </View>
+      </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
   );
 };

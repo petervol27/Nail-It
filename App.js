@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import LoginScreen from './src/screens/LoginScreen';
 import SignUpScreen from './src/screens/SignUpScreen';
@@ -17,8 +17,8 @@ SplashScreen.preventAutoHideAsync();
 const Stack = createNativeStackNavigator();
 
 const App = () => {
-  const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { user, setUser } = useContext(UserContext);
 
   useEffect(() => {
     const prepareApp = async () => {

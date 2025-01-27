@@ -70,6 +70,9 @@ const generalStyles = StyleSheet.create({
     height: 48,
     width: '90%',
   },
+  buttonBlackSM: {
+    backgroundColor: '#000',
+  },
   buttonText: {
     fontSize: 16,
     color: '#fff',
@@ -80,7 +83,7 @@ const generalStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  
+
   // Text Styles ---------------------------------------
   // Inputs
   input: {
@@ -107,6 +110,12 @@ const generalStyles = StyleSheet.create({
     alignSelf: 'center',
     width: '90%',
     gap: 10,
+  },
+  textInput: {
+    flex: 1,
+    fontSize: 16,
+    color: 'black',
+    padding: 0,
   },
   // Text
   title: {
