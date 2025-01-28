@@ -14,7 +14,7 @@ import generalStyles from '../assets/styles/generalStyles';
 import passwordIcon from '../assets/icons/password.png';
 import hashIcon from '../assets/icons/hashtag.png';
 import AppIcon from '../components/AppIcon';
-
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 const SignUpScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -47,10 +47,10 @@ const SignUpScreen = ({ navigation }) => {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={0}
+    <KeyboardAwareScrollView
+      contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
+      enableOnAndroid={true}
+      extraHeight={100}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.container}>
@@ -146,7 +146,7 @@ const SignUpScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
       </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+    </KeyboardAwareScrollView>
   );
 };
 

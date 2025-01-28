@@ -22,6 +22,7 @@ import { UserContext } from '../context/UserContext';
 import generalStyles from '../assets/styles/generalStyles';
 import { getUserDocument } from '../utils/firestore';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
