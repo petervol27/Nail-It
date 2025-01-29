@@ -60,7 +60,7 @@ const generalStyles = StyleSheet.create({
     width: '90%',
   },
   buttonMain: {
-    backgroundColor: '#A96BAE',
+    backgroundColor: '#C85D7C',
   },
   buttonWhite: {
     backgroundColor: '#fff',

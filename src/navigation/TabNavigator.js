@@ -1,8 +1,5 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useContext, useEffect, useState } from 'react';
-import { ActivityIndicator } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { View, TouchableOpacity } from 'react-native';
 import HomeScreen from '../screens/HomeScreen';
 import ProfileScreen from '../screens/ProfileScreen';
@@ -28,11 +25,7 @@ const TabNavigator = () => {
   const { user } = useContext(UserContext);
   useEffect(() => {
     if (user) {
-      if (user.hasSeenInstructions) {
-        setInitialRoute('Home');
-      } else {
-        setInitialRoute('Instructions');
-      }
+      setInitialRoute(user.hasSeenInstructions ? 'Home' : 'Instructions');
     }
   }, [user]);
   if (!initialRoute) {
@@ -40,7 +33,6 @@ const TabNavigator = () => {
   }
   return (
     <Tab.Navigator
-      initialRouteName={initialRoute}
       screenOptions={({ route }) => ({
         animation: 'fade',
         tabBarIcon: ({ focused }) => {
@@ -58,10 +50,11 @@ const TabNavigator = () => {
             iconSource = cameraIcon;
             size = 28;
           } else if (route.name === 'Instructions') {
+            return null;
           }
           const isCameraTab = route.name === 'Camera';
           const activeColor = isCameraTab ? 'black' : 'white';
-          const inactiveColor = isCameraTab ? '#A96BAE' : 'black';
+          const inactiveColor = isCameraTab ? '#C85D7C' : 'black';
           return (
             <AppIcon
               iconSource={iconSource}
@@ -71,12 +64,12 @@ const TabNavigator = () => {
           );
         },
         tabBarStyle: {
-          backgroundColor: '#A96BAE',
+          backgroundColor: '#C85D7C',
           paddingBottom: 5,
         },
         tabBarShowLabel: false,
         headerStyle: {
-          backgroundColor: '#A96BAE',
+          backgroundColor: '#C85D7C',
           borderBottomLeftRadius: 20,
           borderBottomRightRadius: 20,
           height: 116,
@@ -93,15 +86,6 @@ const TabNavigator = () => {
         ),
       })}
     >
-      <Tab.Screen
-        name="Instructions"
-        component={InstructionsScreen}
-        options={
-          {
-            // tabBarButton: () => null,
-          }
-        }
-      />
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Feed" component={FeedScreen} />
       <Tab.Screen
@@ -118,7 +102,7 @@ const TabNavigator = () => {
             justifyContent: 'center',
             alignItems: 'center',
             borderWidth: 1,
-            borderColor: '#A96BAE',
+            borderColor: '#C85D7C',
             elevation: 5,
             shadowColor: '#000',
             shadowOffset: { width: 0, height: 2 },
@@ -129,6 +113,9 @@ const TabNavigator = () => {
       />
       <Tab.Screen name="Saved" component={SavedScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
+      {!initialRoute && (
+        <Tab.Screen name="Instructions" component={InstructionsScreen} />
+      )}
     </Tab.Navigator>
   );
 };

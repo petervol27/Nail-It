@@ -83,6 +83,7 @@ const styles = StyleSheet.create({
   },
   bottomContainer: {
     flex: 0.5,
+    paddingHorizontal: 20,
   },
 });
 

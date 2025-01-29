@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   textSignup: {
-    color: '#A96BAE',
+    color: '#C85D7C',
   },
 });
 

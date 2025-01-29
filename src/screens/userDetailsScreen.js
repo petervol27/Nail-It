@@ -230,18 +230,18 @@ const styles = StyleSheet.create({
   },
   option: {
     borderWidth: 1,
-    borderColor: '#A96BAE',
-    color: '#A96BAE',
+    borderColor: '#C85D7C',
+    color: '#C85D7C',
   },
   optionContainer: {
     gap: 10,
   },
   optionSelected: {
-    borderColor: '#A96BAE',
-    backgroundColor: '#A96BAE',
+    borderColor: '#C85D7C',
+    backgroundColor: '#C85D7C',
   },
   optionText: {
-    color: '#A96BAE',
+    color: '#C85D7C',
     fontSize: 16,
   },
   optionTextSelected: {
