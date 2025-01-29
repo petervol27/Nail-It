@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { logoutUser } from '../utils/auth';
 import generalStyles from '../assets/styles/generalStyles';
 import { UserContext } from '../context/UserContext';
+import Header from '../components/Header';
 
 const ProfileScreen = () => {
   const { user } = useContext(UserContext);
@@ -31,6 +32,7 @@ const ProfileScreen = () => {
   };
   return (
     <View style={styles.container}>
+      <Header />
       <Text>Profile Screen</Text>
       <TouchableOpacity
         style={[generalStyles.button, generalStyles.buttonMain]}

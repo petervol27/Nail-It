@@ -81,7 +81,7 @@ const UserDetailsScreen = ({ route, navigation }) => {
             generalStyles.title,
             generalStyles.marginTopMD,
             generalStyles.marginBtmSM,
-            styles.titleSection,
+            generalStyles.titleSection,
           ]}
         >
           Are You
@@ -141,7 +141,7 @@ const UserDetailsScreen = ({ route, navigation }) => {
         <Text
           style={[
             generalStyles.title,
-            styles.titleSection,
+            generalStyles.titleSection,
             generalStyles.marginBtmSM,
           ]}
         >
@@ -170,7 +170,7 @@ const UserDetailsScreen = ({ route, navigation }) => {
         <Text
           style={[
             generalStyles.title,
-            styles.titleSection,
+            generalStyles.titleSection,
             generalStyles.marginBtmSM,
           ]}
         >
@@ -225,9 +225,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  titleSection: {
-    textAlign: 'start',
-  },
+
   option: {
     borderWidth: 1,
     borderColor: '#C85D7C',

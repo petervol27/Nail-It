@@ -1,11 +1,11 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import Spinner from '../components/Spinner';
+import Header from '../components/Header';
 const HomeScreen = () => {
   return (
     <View style={styles.container}>
+      <Header />
       <Text>Home Screen</Text>
-      <Spinner />
     </View>
   );
 };

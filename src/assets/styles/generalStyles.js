@@ -123,6 +123,13 @@ const generalStyles = StyleSheet.create({
     fontWeight: 300,
     textAlign: 'center',
   },
+  titleSection: {
+    textAlign: 'start',
+  },
+  titleHeader: {
+    fontWeight: 300,
+    fontSize: 28,
+  },
 });
 
 export default generalStyles;

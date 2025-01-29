@@ -73,6 +73,10 @@ const TabNavigator = () => {
           borderBottomLeftRadius: 20,
           borderBottomRightRadius: 20,
           height: 116,
+          shadowColor: '#C85D7C',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.5,
+          shadowRadius: 3,
         },
 
         headerTitle: '',
