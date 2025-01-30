@@ -8,11 +8,12 @@ import { Capitalize } from '../helpers';
 const Header = () => {
   const { user } = useContext(UserContext);
   const [headerText, setHeaderText] = useState('');
-  const [headerStyle, setHeaderStyle] = useState('');
+  const [headerStyle, setHeaderStyle] = useState([]);
   const currentScreen = useNavigationState((state) => {
-    return state?.routes[state?.index]?.name;
+    return state?.routes[state?.index]?.name || 'Home';
   });
   const setText = () => {
+    console.log(currentScreen);
     switch (currentScreen) {
       case 'Home':
         setHeaderText(`Hello ${Capitalize(user.name)}!`);
@@ -21,16 +22,28 @@ const Header = () => {
           generalStyles.titleSection,
           generalStyles.titleHeader,
         ]);
+        break;
       case 'Feed':
         setHeaderText('Inspirations');
+        setHeaderStyle([generalStyles.title, generalStyles.titleHeader]);
+        break;
+      case 'Camera':
+        setHeaderText('Inspirations');
+        setHeaderStyle([generalStyles.title, generalStyles.titleHeader]);
+      case 'Saved':
+        setHeaderText('Inspirations');
+        setHeaderStyle([generalStyles.title, generalStyles.titleHeader]);
+      case 'Profile':
+        setHeaderText('Inspirations');
+        setHeaderStyle([generalStyles.title, generalStyles.titleHeader]);
     }
   };
   useEffect(() => {
     setText();
-  }, []);
+  }, [currentScreen]);
   return (
     <View style={styles.container}>
-      <Text style={{ headerStyle }}>{headerText}</Text>
+      <Text style={[...headerStyle]}>{headerText}</Text>
     </View>
   );
 };

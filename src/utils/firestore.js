@@ -5,6 +5,10 @@ import {
   arrayUnion,
   getDoc,
   Timestamp,
+  query,
+  orderBy,
+  getDocs,
+  collection,
 } from 'firebase/firestore';
 import { firestore } from '../firebase';
 
@@ -92,5 +96,41 @@ export const addFollower = async (userId, followerId) => {
     return 'Follower added successfully';
   } catch (error) {
     throw new Error('Error adding follower: ' + error.message);
+  }
+};
+
+// ---------------------------------------------
+// Designs
+
+export const createDesign = async (designData) => {
+  try {
+    const docRef = await addDoc(collection(firestore, 'designs'), {
+      ...designData,
+      createdAt: Timestamp.now(),
+      likes: 0,
+    });
+
+    return { id: docRef.id, ...designData, createAt: Timestamp.now() };
+  } catch (error) {
+    console.error('Error creating design', error);
+    return null;
+  }
+};
+
+export const getDesigns = async () => {
+  try {
+    const q = query(
+      collection(firestore, 'designs'),
+      orderBy('createAt', 'desc')
+    );
+    const querySnapshot = await getDocs(q);
+    const designs = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    return designs;
+  } catch (error) {
+    console.error('Error Fetching designs', error);
+    return [];
   }
 };
