@@ -4,11 +4,13 @@ import { UserContext } from '../context/UserContext';
 import generalStyles from '../assets/styles/generalStyles';
 import { useNavigationState } from '@react-navigation/native';
 import { Capitalize } from '../helpers';
-
+import AppIcon from './AppIcon';
+import { editIcon } from '../assets/icons/editIcon.png';
 const Header = () => {
   const { user } = useContext(UserContext);
   const [headerText, setHeaderText] = useState('');
   const [headerStyle, setHeaderStyle] = useState([]);
+  const [headerIcon, setHeaderIcon] = useState({});
   const currentScreen = useNavigationState((state) => {
     return state?.routes[state?.index]?.name || 'Home';
   });
@@ -30,12 +32,16 @@ const Header = () => {
       case 'Camera':
         setHeaderText('Inspirations');
         setHeaderStyle([generalStyles.title, generalStyles.titleHeader]);
+        break;
       case 'Saved':
         setHeaderText('Inspirations');
         setHeaderStyle([generalStyles.title, generalStyles.titleHeader]);
+        break;
       case 'Profile':
-        setHeaderText('Inspirations');
+        setHeaderText("Let's explore your profile!");
+        // <AppIcon iconSource={editIcon} color={'black'} />
         setHeaderStyle([generalStyles.title, generalStyles.titleHeader]);
+        break;
     }
   };
   useEffect(() => {
@@ -52,7 +58,7 @@ export default Header;
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: -140,
+    marginTop: -20,
     paddingHorizontal: 22,
     paddingVertical: 42,
     width: '100%',
