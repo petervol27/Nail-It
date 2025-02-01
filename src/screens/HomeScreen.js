@@ -43,6 +43,7 @@ const HomeScreen = ({ navigation }) => {
           <FlatList
             data={designs}
             keyExtractor={(item) => item.id}
+            style={{ padding: 0, margin: 0 }}
             renderItem={({ item }) => (
               <View style={styles.designCard}>
                 <Image source={{ uri: item.imageUrl }} style={styles.image} />
@@ -73,22 +74,33 @@ const styles = StyleSheet.create({
     // paddingHorizontal: 10,
     paddingVertical: 20,
     backgroundColor: '#fff',
+    margin: 0,
+    padding: 0,
   },
   content: {
+    flex: 1,
     marginTop: 60,
+    margin: 0,
+    padding: 0,
     // paddingHorizontal: 20,
   },
   designCard: {
     marginBottom: 20,
     padding: 0,
+    margin: 0,
     width: '100%',
+    resizeMode: 'cover',
     // padding: 10,
     backgroundColor: '#f9f9f9',
+    // borderWidth: 2, // ✅ Add borders
+    // borderColor: 'red',
     // borderRadius: 8,
   },
   image: {
     width: '100%',
     height: 200,
+    // borderWidth: 2, // ✅ Add borders
+    // borderColor: 'blue',
     // borderRadius: 8,
   },
 });
