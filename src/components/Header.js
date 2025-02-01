@@ -6,11 +6,12 @@ import { useNavigationState } from '@react-navigation/native';
 import { Capitalize } from '../helpers';
 import AppIcon from './AppIcon';
 import { editIcon } from '../assets/icons/editIcon.png';
+import profileIcon from '../assets/icons/profile.png';
 const Header = () => {
   const { user } = useContext(UserContext);
   const [headerText, setHeaderText] = useState('');
   const [headerStyle, setHeaderStyle] = useState([]);
-  const [headerIcon, setHeaderIcon] = useState({});
+  // const [headerIcon, setHeaderIcon] = useState({});
   const currentScreen = useNavigationState((state) => {
     return state?.routes[state?.index]?.name || 'Home';
   });
@@ -39,7 +40,6 @@ const Header = () => {
         break;
       case 'Profile':
         setHeaderText("Let's explore your profile!");
-        // <AppIcon iconSource={editIcon} color={'black'} />
         setHeaderStyle([generalStyles.title, generalStyles.titleHeader]);
         break;
     }
@@ -50,6 +50,11 @@ const Header = () => {
   return (
     <View style={styles.container}>
       <Text style={[...headerStyle]}>{headerText}</Text>
+      {/* <View style={styles.specialContainer}>
+        {currentScreen === 'Profile' && (
+          <AppIcon iconSource={profileIcon} color={'blue'} />
+        )}
+      </View> */}
     </View>
   );
 };
@@ -65,5 +70,13 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     left: 0,
+    zIndex: 999, // ensures this is on top
+    elevation: 10,
   },
+  // specialContainer: {
+  //   display: 'flex',
+  //   justifyContent: 'center',
+  //   alignItems: 'center',
+  //   flexDirection: 'row',
+  // },
 });

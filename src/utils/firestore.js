@@ -9,6 +9,7 @@ import {
   orderBy,
   getDocs,
   collection,
+  addDoc,
 } from 'firebase/firestore';
 import { firestore } from '../firebase';
 
@@ -104,15 +105,19 @@ export const addFollower = async (userId, followerId) => {
 
 export const createDesign = async (designData) => {
   try {
-    const docRef = await addDoc(collection(firestore, 'designs'), {
+    // Create a reference to a new document in the "designs" collection
+    const docRef = doc(collection(firestore, 'designs'));
+
+    // Set the document with a unique ID (like how user documents work)
+    await setDoc(docRef, {
       ...designData,
-      createdAt: Timestamp.now(),
+      createdAt: Timestamp.now(), // 🛠 Fix: Use "createdAt" consistently
       likes: 0,
     });
 
-    return { id: docRef.id, ...designData, createAt: Timestamp.now() };
+    return { id: docRef.id, ...designData, createdAt: Timestamp.now() };
   } catch (error) {
-    console.error('Error creating design', error);
+    console.error('Error creating design:', error);
     return null;
   }
 };
@@ -121,7 +126,7 @@ export const getDesigns = async () => {
   try {
     const q = query(
       collection(firestore, 'designs'),
-      orderBy('createAt', 'desc')
+      orderBy('createdAt', 'desc')
     );
     const querySnapshot = await getDocs(q);
     const designs = querySnapshot.docs.map((doc) => ({
@@ -130,7 +135,7 @@ export const getDesigns = async () => {
     }));
     return designs;
   } catch (error) {
-    console.error('Error Fetching designs', error);
+    console.error('Error fetching designs:', error);
     return [];
   }
 };
