@@ -1,6 +1,7 @@
 {
+  "name": "nail-it",
+  "displayName": "Nail It",
   "expo": {
-    "name": "nail-it",
     "slug": "nail-it",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -9,20 +10,43 @@
     "newArchEnabled": true,
     "splash": {
       "image": "./src/assets/images/welcome.png",
-      "resizeMode": "contain",
+      "resizeMode": "cover",
       "backgroundColor": "#C85D7C"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "runtimeVersion": {
+        "policy": "appVersion"
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "dev.nailit.com",
+      "runtimeVersion": "1.0.0"
     },
     "web": {
       "favicon": "./src/assets/images/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "d5aec06b-d60c-4f40-8f0e-16ba5d321906"
+      },
+      "firebase": {
+        "apiKey": "your-api-key",
+        "authDomain": "your-auth-domain",
+        "projectId": "your-project-id",
+        "storageBucket": "your-storage-bucket",
+        "messagingSenderId": "your-messaging-id",
+        "appId": "your-app-id",
+        "measurementId": "your-measurement-id"
+      }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/d5aec06b-d60c-4f40-8f0e-16ba5d321906",
+      "fallbackToCacheTimeout": 0
     }
   }
 }

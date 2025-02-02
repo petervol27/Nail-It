@@ -1,0 +1,12 @@
+Android:
+
+eas build --platform android --profile preview : build an APK for android
+
+eas build --platform android : build an AAB for google store upload
+
+eas update --branch production : update APK file in case no native code was changed 
+
+IOS:
+
+eas build --platform ios : build for production and testing
+
