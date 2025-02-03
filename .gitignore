@@ -35,3 +35,4 @@ yarn-error.*
 .env.local
 # typescript
 *.tsbuildinfo
+eas.json
