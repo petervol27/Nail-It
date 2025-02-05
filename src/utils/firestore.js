@@ -29,7 +29,8 @@ export const createUserDocument = async (userId, userData) => {
     language: '',
     bio: '',
     profileImage: '',
-    nailCrew: [], // Array of user IDs
+    nailCrewFollowers: [], // Array of user IDs
+    nailCrewFollowing: [], // Array of user IDs
     savedDesigns: [], // Array of design IDs
     myDesigns: [], // Array of design IDs
     inspirations: [], // Array of design IDs

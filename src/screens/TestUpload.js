@@ -10,46 +10,66 @@ import {
 import { createDesign } from '../utils/firestore';
 import { UserContext } from '../context/UserContext';
 import * as ImagePicker from 'expo-image-picker';
-import { launchImageLibrary } from 'react-native-image-picker';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import uuid from 'react-native-uuid'; // Generates unique file names
 
 const UploadDesignScreen = ({ navigation }) => {
   const { user } = useContext(UserContext);
   const [title, setTitle] = useState('');
   const [image, setImage] = useState(null);
+  const [uploading, setUploading] = useState(false);
 
   const handleImagePick = async () => {
-    console.log('handleImagePick function triggered'); // Debugging Log
-
     if (Platform.OS === 'web') {
       alert('Image picking is not supported on web.');
       return;
     }
 
-    // Request media library permissions
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
       alert('Sorry, we need camera roll permissions to make this work!');
       return;
     }
 
-    console.log('Permission granted, opening image picker...'); // Debugging Log
+    console.log('Permission granted, opening image picker...');
 
-    // Launch image library picker
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: 'Images', // 🛠 Fix: Use new MediaType syntax
+      mediaTypes: 'images',
       allowsEditing: true,
-      aspect: [4, 4],
+      aspect: [16, 9],
       quality: 1,
     });
 
-    console.log('Image picker result:', result); // Debugging Log
-
-    // 🛠 Fix: Check if result is valid
     if (!result.canceled && result.assets && result.assets.length > 0) {
       setImage(result.assets[0].uri);
-      console.log('Image selected:', result.assets[0].uri); // Debugging Log
-    } else {
-      console.log('User canceled image picker or no image returned.'); // Debugging Log
+    }
+  };
+
+  // 🔥 Convert image to blob and upload to Firebase Storage
+  const uploadImageToFirebase = async (localUri) => {
+    try {
+      setUploading(true);
+      const storage = getStorage(); // ✅ Correctly initialize Firebase Storage
+      const fileName = `${uuid.v4()}.jpg`; // Unique file name
+      const storageRef = ref(storage, `uploads/${fileName}`);
+
+      console.log('Uploading image to Firebase Storage:', localUri);
+
+      // ✅ Convert the image URI to a Blob for upload
+      const response = await fetch(localUri);
+      const blob = await response.blob();
+
+      await uploadBytes(storageRef, blob); // ✅ Upload the image as a Blob
+      console.log('Image uploaded successfully.');
+
+      // ✅ Get the Firebase Storage URL
+      const downloadUrl = await getDownloadURL(storageRef);
+      return downloadUrl;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      return null;
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -59,11 +79,17 @@ const UploadDesignScreen = ({ navigation }) => {
       return;
     }
 
-    console.log('Uploading image:', image);
+    setUploading(true);
+    const downloadUrl = await uploadImageToFirebase(image); // ✅ Upload first
+    if (!downloadUrl) {
+      alert('Image upload failed');
+      setUploading(false);
+      return;
+    }
 
     const designData = {
       title,
-      imageUrl: image, // Need to upload to Firebase Storage first
+      imageUrl: downloadUrl, // ✅ Save Firebase URL instead of local file path
       creatorId: user.uid,
       creatorName: user.name,
       creatorCountry: user.country,
@@ -74,6 +100,7 @@ const UploadDesignScreen = ({ navigation }) => {
       alert('Design uploaded successfully!');
       navigation.goBack();
     }
+    setUploading(false);
   };
 
   return (
@@ -87,7 +114,11 @@ const UploadDesignScreen = ({ navigation }) => {
       {image && (
         <Image source={{ uri: image }} style={{ width: 100, height: 100 }} />
       )}
-      <Button title="Upload Design" onPress={handleUpload} />
+      <Button
+        title={uploading ? 'Uploading...' : 'Upload Design'}
+        onPress={handleUpload}
+        disabled={uploading} // Prevent multiple uploads
+      />
     </View>
   );
 };

@@ -19,7 +19,7 @@ const Header = () => {
     console.log(currentScreen);
     switch (currentScreen) {
       case 'Home':
-        setHeaderText(`Hello ${Capitalize(user.name)}!`);
+        setHeaderText(`Hey ${Capitalize(user.name)}!`);
         setHeaderStyle([
           generalStyles.title,
           generalStyles.titleSection,

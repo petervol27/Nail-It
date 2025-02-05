@@ -7,17 +7,18 @@ import AppIcon from '../components/AppIcon';
 import homeIcon from '../assets/icons/home.png';
 import profileIcon from '../assets/icons/profile.png';
 import savedIcon from '../assets/icons/heart.png';
-import feedIcon from '../assets/icons/grid.png';
-import cameraIcon from '../assets/icons/camera.png';
+import plusIcon from '../assets/icons/plusIcon.png';
+import notificationIcon from '../assets/icons/notification.png';
+
 import messageIcon from '../assets/icons/message.png';
 import logo from '../assets/images/logo.png';
 import SavedScreen from '../screens/SavedScreen';
-import FeedScreen from '../screens/FeedScreen';
 import CameraScreen from '../screens/CameraScreen';
 import { Image, StyleSheet } from 'react-native';
 import InstructionsScreen from '../screens/InstructionsScreen';
 import { UserContext } from '../context/UserContext';
 import Spinner from '../components/Spinner';
+import NotificationScreen from '../screens/NotificationScreen';
 
 const Tab = createBottomTabNavigator();
 const TabNavigator = () => {
@@ -44,10 +45,10 @@ const TabNavigator = () => {
             iconSource = profileIcon;
           } else if (route.name === 'Saved') {
             iconSource = savedIcon;
-          } else if (route.name === 'Feed') {
-            iconSource = feedIcon;
+          } else if (route.name === 'Notifications') {
+            iconSource = notificationIcon;
           } else if (route.name === 'Camera') {
-            iconSource = cameraIcon;
+            iconSource = plusIcon;
             size = 28;
           } else if (route.name === 'Instructions') {
             return null;
@@ -91,7 +92,7 @@ const TabNavigator = () => {
       })}
     >
       <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Feed" component={FeedScreen} />
+      <Tab.Screen name="Notifications" component={NotificationScreen} />
       <Tab.Screen
         name="Camera"
         component={CameraScreen}
