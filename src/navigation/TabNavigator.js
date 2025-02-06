@@ -1,37 +1,50 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { View, TouchableOpacity } from 'react-native';
+import { createStackNavigator } from '@react-navigation/stack'; // ✅ Added Stack Navigator
+import { View, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import HomeScreen from '../screens/HomeScreen';
+import SingleDesignScreen from '../screens/SingleDesignScreen'; // ✅ Import the screen
 import ProfileScreen from '../screens/ProfileScreen';
+import SavedScreen from '../screens/SavedScreen';
+import CameraScreen from '../screens/CameraScreen';
+import NotificationScreen from '../screens/NotificationScreen';
+import InstructionsScreen from '../screens/InstructionsScreen';
 import AppIcon from '../components/AppIcon';
+import Spinner from '../components/Spinner';
+import { UserContext } from '../context/UserContext';
+
+// Import icons
 import homeIcon from '../assets/icons/home.png';
 import profileIcon from '../assets/icons/profile.png';
 import savedIcon from '../assets/icons/heart.png';
 import plusIcon from '../assets/icons/plusIcon.png';
 import notificationIcon from '../assets/icons/notification.png';
-
 import messageIcon from '../assets/icons/message.png';
 import logo from '../assets/images/logo.png';
-import SavedScreen from '../screens/SavedScreen';
-import CameraScreen from '../screens/CameraScreen';
-import { Image, StyleSheet } from 'react-native';
-import InstructionsScreen from '../screens/InstructionsScreen';
-import { UserContext } from '../context/UserContext';
-import Spinner from '../components/Spinner';
-import NotificationScreen from '../screens/NotificationScreen';
-
+// import { useNavigation } from '@react-navigation/native';
 const Tab = createBottomTabNavigator();
+const HomeStack = createStackNavigator(); // ✅ Create a stack navigator for Home
+
+// ✅ Stack Navigator for Home + SingleDesignScreen
+const HomeStackNavigator = () => {
+  return (
+    <HomeStack.Navigator screenOptions={{ headerShown: false }}>
+      {/* <HomeStack.Screen name="Instructions" component={InstructionsScreen} /> */}
+      <HomeStack.Screen name="HomeMain" component={HomeScreen} />
+      <HomeStack.Screen name="SingleDesign" component={SingleDesignScreen} />
+    </HomeStack.Navigator>
+  );
+};
+
 const TabNavigator = () => {
-  const [initialRoute, setInitialRoute] = useState(null);
   const { user } = useContext(UserContext);
-  useEffect(() => {
-    if (user) {
-      setInitialRoute(user.hasSeenInstructions ? 'Home' : 'Instructions');
-    }
-  }, [user]);
-  if (!initialRoute) {
-    return <Spinner />;
-  }
+  // const nav = useNavigation();
+  // useEffect(() => {
+  //   if (user && !user.hasSeenInstructions) {
+  //     nav.replace('Instructions');
+  //   }
+  // }, [user]);
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -39,6 +52,7 @@ const TabNavigator = () => {
         tabBarIcon: ({ focused }) => {
           let iconSource;
           let size = null;
+
           if (route.name === 'Home') {
             iconSource = homeIcon;
           } else if (route.name === 'Profile') {
@@ -50,12 +64,12 @@ const TabNavigator = () => {
           } else if (route.name === 'Camera') {
             iconSource = plusIcon;
             size = 28;
-          } else if (route.name === 'Instructions') {
-            return null;
           }
+
           const isCameraTab = route.name === 'Camera';
           const activeColor = isCameraTab ? 'black' : 'white';
           const inactiveColor = isCameraTab ? '#C85D7C' : 'black';
+
           return (
             <AppIcon
               iconSource={iconSource}
@@ -79,7 +93,6 @@ const TabNavigator = () => {
           shadowOpacity: 0.5,
           shadowRadius: 3,
         },
-
         headerTitle: '',
         headerLeft: () => <Image source={logo} style={styles.logo} />,
         headerRight: () => (
@@ -91,7 +104,7 @@ const TabNavigator = () => {
         ),
       })}
     >
-      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Home" component={HomeStackNavigator} />
       <Tab.Screen name="Notifications" component={NotificationScreen} />
       <Tab.Screen
         name="Camera"
@@ -118,12 +131,10 @@ const TabNavigator = () => {
       />
       <Tab.Screen name="Saved" component={SavedScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
-      {!initialRoute && (
-        <Tab.Screen name="Instructions" component={InstructionsScreen} />
-      )}
     </Tab.Navigator>
   );
 };
+
 export default TabNavigator;
 
 const styles = StyleSheet.create({

@@ -32,7 +32,6 @@ const InstructionScreen = ({ navigation }) => {
       try {
         await updateUserDocument(user.uid, { hasSeenInstructions: true });
         setUser({ ...user, hasSeenInstructions: true });
-        navigation.navigate('Home');
       } catch (error) {
         console.log('Error updating doc: ', error);
       }

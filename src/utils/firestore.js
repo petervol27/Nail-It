@@ -164,3 +164,31 @@ export const toggledSavedDesign = async (userId, designId) => {
     console.error('Error toggling saved design:', error);
   }
 };
+
+export const likeDesign = async (designId, userId) => {
+  try {
+    const designRef = doc(firestore, 'designs', designId);
+    const designSnap = await getDoc(designRef);
+
+    if (!designSnap.exists()) {
+      console.error('Design not found.');
+      return;
+    }
+
+    const designData = designSnap.data();
+    const alreadyLiked = designData.likedBy?.includes(userId); // ✅ Prevent multiple likes
+
+    if (!alreadyLiked) {
+      await updateDoc(designRef, {
+        likes: designData.likes + 1,
+        likedBy: arrayUnion(userId), // ✅ Store user IDs who liked the post
+      });
+
+      console.log('Design liked successfully!');
+    } else {
+      console.log('User already liked this design.');
+    }
+  } catch (error) {
+    console.error('Error liking design:', error);
+  }
+};

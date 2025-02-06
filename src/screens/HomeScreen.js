@@ -1,96 +1,42 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import {
   View,
-  Text,
-  StyleSheet,
-  FlatList,
-  Image,
   TouchableOpacity,
-  ImageBackground,
-  Modal,
+  Text,
+  FlatList,
+  StyleSheet,
+  Image,
+  Animated,
+  Dimensions,
 } from 'react-native';
-import downloadIcon from '../assets/icons/downloadIcon.png';
-import shareIcon from '../assets/icons/shareIcon.png';
-import heartIcon from '../assets/icons/heart.png';
-import filledHeartIcon from '../assets/icons/filledHeart.png';
 import cameraIcon from '../assets/icons/camera.png';
-import {
-  getDesigns,
-  getUserDocument,
-  toggledSavedDesign,
-} from '../utils/firestore';
+import { getDesigns, getUserDocument } from '../utils/firestore';
 import Header from '../components/Header';
 import Spinner from '../components/Spinner';
 import AppIcon from '../components/AppIcon';
-import { timeAgo } from '../helpers';
 
-import { Alert, Share } from 'react-native';
-import * as FileSystem from 'expo-file-system';
-import * as MediaLibrary from 'expo-media-library';
 import { UserContext } from '../context/UserContext';
-
+const screenWidth = Dimensions.get('window').width;
+const padding = 20; // ✅ Adjust based on total padding
+const tabWidth = (screenWidth - padding) / 2; // ✅ Ensures correct width
 const HomeScreen = ({ navigation }) => {
   const { user } = useContext(UserContext);
-  const [designs, setDesigns] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [downloading, setDownloading] = useState(false);
-  const [savedDesigns, setSavedDesigns] = useState([]);
-  const userId = user?.uid;
-  const shareDesign = async (design) => {
-    try {
-      const shareMessage = `
-        🎨 **${design.title}**
-        ❤️ ${design.likes} Likes
-        👤 By ${design.creatorName} from ${design.creatorCountry}
-        
-        Check out this amazing design on Nail It! 🚀
-        ${design.imageUrl}
-      `;
-
-      await Share.share({
-        message: shareMessage,
-        url: design.imageUrl,
-        title: design.title,
-      });
-    } catch (error) {
-      console.error('Error sharing design:', error);
-      Alert.alert('Error', 'Could not share the design.');
-    }
-  };
-  const downloadImage = async (imageUrl, setDownloading) => {
-    try {
-      setDownloading(true);
-      const { status } = await MediaLibrary.requestPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Premission required');
-        setDownloading(false);
-        return;
-      }
-      const fileName = imageUrl.split('/').pop();
-      const fileUri = `${FileSystem.documentDirectory}${fileName}`;
-      const downloadedFile = await FileSystem.downloadAsync(imageUrl, fileUri);
-      const asset = await MediaLibrary.createAssetAsync(downloadedFile.uri);
-      await MediaLibrary.createAlbumAsync('Nail It Designs', asset, false);
-      Alert.alert('Download Succesful!');
-    } catch (error) {
-      console.log(error);
-      Alert.alert(error);
-    } finally {
-      setDownloading(false);
-    }
-  };
-
+  const [designs, setDesigns] = useState([]);
+  const [filterDesigns, setFilterDesigns] = useState('all');
+  const [following, setFollowing] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const underlinePosition = useRef(new Animated.Value(0)).current;
   useEffect(() => {
+    Animated.timing(underlinePosition, {
+      toValue: filterDesigns === 'all' ? 10 : tabWidth + 10, // ✅ Moves underline correctly
+      duration: 300,
+      useNativeDriver: false, // ✅ Required for layout animations
+    }).start();
     const fetchDesigns = async () => {
       setLoading(true);
       try {
         const designList = await getDesigns();
-
-        setDesigns(designList.length > 0 ? designList : null);
-        if (user?.uid) {
-          const userData = await getUserDocument(user.uid);
-          setSavedDesigns(userData?.savedDesigns || []);
-        }
+        setDesigns(designList);
       } catch (error) {
         console.error('Error fetching designs:', error);
       }
@@ -98,19 +44,48 @@ const HomeScreen = ({ navigation }) => {
     };
 
     fetchDesigns();
-  }, [user?.uid]);
+  }, [filterDesigns]);
 
+  const filteredDesigns =
+    filterDesigns === 'all'
+      ? designs
+      : designs.filter((design) => following.includes(design.creatorId));
   return (
     <View style={styles.container}>
       <Header />
-      <Modal transparent={true} animationType="fade" visible={downloading}>
-        <View style={styles.modalBackground}>
-          <View style={styles.modalContent}>
-            <Spinner />
-            <Text style={styles.loadingText}>Downloading Image...</Text>
-          </View>
-        </View>
-      </Modal>
+      {/* 🔥 Buttons for Filtering */}
+      <View style={styles.navContainer}>
+        <TouchableOpacity
+          style={[
+            styles.navButton,
+            filterDesigns === 'all' && styles.activeNav, // ✅ Border applied to full button
+          ]}
+          onPress={() => setFilterDesigns('all')}
+        >
+          <Text style={styles.navText}>For You</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[
+            styles.navButton,
+            filterDesigns === 'following' && styles.activeNav, // ✅ Border applied to full button
+          ]}
+          onPress={() => setFilterDesigns('following')}
+        >
+          <Text style={styles.navText}>Following</Text>
+        </TouchableOpacity>
+        <Animated.View
+          style={[
+            styles.underline,
+            {
+              width: tabWidth - 20, // ✅ Keeps width consistent
+              left: underlinePosition, // ✅ Now using `left` instead of `translateX`
+              opacity: 1, // ✅ Always visible
+            },
+          ]}
+        />
+      </View>
+
       {/* <TouchableOpacity
         onPress={() => navigation.navigate('Test')}
         style={styles.button}
@@ -119,104 +94,37 @@ const HomeScreen = ({ navigation }) => {
       </TouchableOpacity> */}
       {loading ? (
         <Spinner />
-      ) : designs === null ? (
-        <></>
+      ) : filteredDesigns.length === 0 ? ( // ✅ Show message if no designs
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>You're not following anyone yet.</Text>
+        </View>
       ) : (
-        <View style={styles.content}>
-          <FlatList
-            data={designs}
-            keyExtractor={(item) => item.id}
-            contentContainerStyle={{
-              width: '100%',
-              flexGrow: 1,
-              margin: 0,
-              padding: 0,
-            }}
-            style={{
-              flex: 1,
-              width: '100%',
-              padding: 0,
-              margin: 0,
-            }}
-            renderItem={({ item }) => (
-              <View style={styles.designCard}>
-                <View>
-                  <ImageBackground
-                    source={{ uri: item.imageUrl }}
-                    style={styles.image}
-                  >
-                    <View style={styles.imageIconContainer}>
-                      <TouchableOpacity>
-                        <AppIcon
-                          iconSource={cameraIcon}
-                          style={styles.imageIcon}
-                          color={'white'}
-                        />
-                      </TouchableOpacity>
-                    </View>
-                  </ImageBackground>
-                </View>
-                <View style={styles.infoContainer}>
-                  <View style={styles.textContainer}>
-                    <Text style={styles.secondaryText}>{item.likes} likes</Text>
-                    <Text style={styles.title}>{item.title}</Text>
-                    <Text style={styles.creator}>
-                      {item.creatorName} | {item.creatorCountry}
-                    </Text>
-                    <Text style={styles.secondaryText}>
-                      {timeAgo(item.createdAt)}
-                    </Text>
-                  </View>
-                  <View style={styles.iconContainer}>
-                    <TouchableOpacity onPress={() => shareDesign(item)}>
-                      <AppIcon
-                        iconSource={shareIcon}
-                        designIcon={true}
-                        size={20}
-                        color={'#040404'}
-                      />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() =>
-                        downloadImage(item.imageUrl, setDownloading)
-                      }
-                    >
-                      <AppIcon
-                        iconSource={downloadIcon}
-                        designIcon={true}
-                        size={20}
-                        color={'#040404'}
-                      />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={async () => {
-                        await toggledSavedDesign(userId, item.id);
-                        setSavedDesigns((prev) =>
-                          prev.includes(item.id)
-                            ? prev.filter((id) => id !== item.id)
-                            : [...prev, item.id]
-                        );
-                      }}
-                    >
-                      <AppIcon
-                        iconSource={
-                          savedDesigns.includes(item.id)
-                            ? filledHeartIcon
-                            : heartIcon
-                        }
-                        size={20}
-                        color={
-                          savedDesigns.includes(item.id) ? 'red' : '#040404'
-                        }
-                      />
-                    </TouchableOpacity>
-                  </View>
+        <FlatList
+          data={filteredDesigns}
+          keyExtractor={(item) => item.id}
+          numColumns={2}
+          columnWrapperStyle={styles.row}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate('SingleDesign', { design: item })
+              } // ✅ Navigate on click
+              style={styles.designCard}
+            >
+              <View style={styles.imageWrapper}>
+                <Image source={{ uri: item.imageUrl }} style={styles.image} />
+                <View style={styles.iconContainer}>
+                  <AppIcon
+                    iconSource={cameraIcon}
+                    size={20}
+                    color={'#C85D7C'}
+                  />
                 </View>
               </View>
-            )}
-            showsVerticalScrollIndicator={false}
-          />
-        </View>
+            </TouchableOpacity>
+          )}
+          showsVerticalScrollIndicator={false}
+        />
       )}
     </View>
   );
@@ -227,76 +135,79 @@ export default HomeScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingHorizontal: 10,
+  },
+  navContainer: {
+    flexDirection: 'row',
+    width: '100%',
+    marginBottom: 30,
+    marginTop: 60,
+    position: 'relative',
+  },
+  navButton: {
+    flex: 1,
+    alignItems: 'center',
     paddingVertical: 20,
   },
-  content: {
-    flex: 1,
-    marginTop: 60,
-    wdith: '100%',
+  navText: {
+    fontSize: 20,
+    fontWeight: 400,
   },
 
-  designCard: {
+  underline: {
+    position: 'absolute',
+    bottom: 8, // 🔥 Moves it closer to the text but keeps click area
+    height: 1, // ✅ Slightly thicker for better visibility
+    backgroundColor: '#000',
+    borderRadius: 5,
+  },
+  emptyContainer: {
     flex: 1,
-    marginBottom: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: 50,
+  },
+  emptyText: {
+    fontSize: 18,
+    color: 'gray',
+  },
+  row: {
+    justifyContent: 'space-between', // ✅ Ensures spacing between columns
+    paddingHorizontal: 10,
+  },
+  designCard: {
+    width: '48%', // ✅ Each item takes half of the screen width
+    aspectRatio: 1, // ✅ Ensures square shape
+    marginBottom: 10,
+    backgroundColor: '#fff', // ✅ Ensures shadow looks proper
+    shadowColor: '#000', // ✅ Stronger shadow effect
+    shadowOpacity: 0.15, // 🔥 Increase for darker shadow
+    shadowRadius: 5, // 🔥 More spread for depth
+    shadowOffset: { width: 0, height: 4 }, // 🔥, // 🔥 More depth
+    elevation: 8, // ✅ Stronger Android shadow
+  },
+  imageWrapper: {
+    position: 'relative', // ✅ Allows absolute positioning of icon
     width: '100%',
+    height: '100%',
   },
   image: {
     width: '100%',
-    height: 300,
-    resizeMode: 'cover',
+    height: '100%',
   },
-  infoContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width: '100%',
-    paddingHorizontal: 10,
-    marginTop: 20,
-  },
-  imageIconContainer: {
-    position: 'absolute',
-    bottom: 20,
-    right: 0,
-    backgroundColor: '#C85D7C',
-    // padding: 8,
-    paddingEnd: 10,
-    paddingStart: 10,
-    paddingVertical: 10,
-    borderTopStartRadius: 20,
-    borderBottomStartRadius: 20,
-    zIndex: 999,
-    elevation: 10,
-  },
-
   iconContainer: {
-    flex: 0.3,
-    flexDirection: 'row',
-    alignSelf: 'flex-start',
-    justifyContent: 'space-evenly',
-  },
-  textContainer: {
-    flex: 0.5,
-  },
-  secondaryText: { fontWeight: 200, fontSize: 14, marginVertical: 2 },
-  creator: { fontWeight: 300, fontSize: 14, marginVertical: 2 },
-  title: { fontSize: 18, fontWeight: 300 },
-  loadingText: {
-    fontSize: 14,
-    color: 'gray',
-    textAlign: 'center',
-    marginTop: 10,
-  },
-  modalBackground: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    position: 'absolute',
+    bottom: 8,
+    right: 8,
+    width: 32, // ✅ Circle size
+    height: 32,
+    borderRadius: 16, // ✅ Makes it a perfect circle
+    backgroundColor: 'white', // ✅ White background
+    alignItems: 'center',
     justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    padding: 30,
-    borderRadius: 10,
-    alignItems: 'center',
-    width: '80%',
+    shadowColor: '#000', // ✅ Optional: Shadow for better visibility
+    shadowOpacity: 0.3,
+    shadowRadius: 7,
+    elevation: 5, // ✅ Android shadow
   },
 });
