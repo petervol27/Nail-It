@@ -6,6 +6,7 @@ const AppIcon = ({
   social = false,
   size = null,
   designIcon = false,
+  saved = false,
 }) => {
   return (
     <Image
@@ -28,5 +29,6 @@ const styles = StyleSheet.create({
   icon: {
     height: 24,
     width: 24,
+    resizeMode: 'contain',
   },
 });

@@ -10,6 +10,7 @@ import {
   getDocs,
   collection,
   addDoc,
+  arrayRemove,
 } from 'firebase/firestore';
 import { firestore } from '../firebase';
 
@@ -18,6 +19,8 @@ import { firestore } from '../firebase';
  * @param {string} userId - The Firebase Auth user ID.
  * @param {object} userData - The user data to store.
  * @returns {Promise<string>} A success message.
+ * @param {string} designId - The ID of the design.
+ * @returns {Promise<void>}
  */
 export const createUserDocument = async (userId, userData) => {
   const userRef = doc(firestore, 'users', userId);
@@ -138,5 +141,26 @@ export const getDesigns = async () => {
   } catch (error) {
     console.error('Error fetching designs:', error);
     return [];
+  }
+};
+
+export const toggledSavedDesign = async (userId, designId) => {
+  try {
+    const userRef = doc(firestore, 'users', userId);
+    const userDoc = await getDoc(userRef);
+    if (!userDoc.exists()) {
+      console.error('User document not found.');
+      return;
+    }
+    const userData = userDoc.data();
+    const isSaved = userData.savedDesigns?.includes(designId);
+    await updateDoc(userRef, {
+      savedDesigns: isSaved ? arrayRemove(designId) : arrayUnion(designId),
+    });
+    console.log(
+      isSaved ? 'Design removed from saved list' : 'Design saved successfully'
+    );
+  } catch (error) {
+    console.error('Error toggling saved design:', error);
   }
 };

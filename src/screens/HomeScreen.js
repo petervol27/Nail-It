@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   View,
   Text,
@@ -7,27 +7,90 @@ import {
   Image,
   TouchableOpacity,
   ImageBackground,
+  Modal,
 } from 'react-native';
 import downloadIcon from '../assets/icons/downloadIcon.png';
 import shareIcon from '../assets/icons/shareIcon.png';
 import heartIcon from '../assets/icons/heart.png';
+import filledHeartIcon from '../assets/icons/filledHeart.png';
 import cameraIcon from '../assets/icons/camera.png';
-import { getDesigns } from '../utils/firestore';
+import {
+  getDesigns,
+  getUserDocument,
+  toggledSavedDesign,
+} from '../utils/firestore';
 import Header from '../components/Header';
 import Spinner from '../components/Spinner';
 import AppIcon from '../components/AppIcon';
 import { timeAgo } from '../helpers';
-import generalStyles from '../assets/styles/generalStyles';
+
+import { Alert, Share } from 'react-native';
+import * as FileSystem from 'expo-file-system';
+import * as MediaLibrary from 'expo-media-library';
+import { UserContext } from '../context/UserContext';
+
 const HomeScreen = ({ navigation }) => {
+  const { user } = useContext(UserContext);
   const [designs, setDesigns] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [downloading, setDownloading] = useState(false);
+  const [savedDesigns, setSavedDesigns] = useState([]);
+  const userId = user?.uid;
+  const shareDesign = async (design) => {
+    try {
+      const shareMessage = `
+        🎨 **${design.title}**
+        ❤️ ${design.likes} Likes
+        👤 By ${design.creatorName} from ${design.creatorCountry}
+        
+        Check out this amazing design on Nail It! 🚀
+        ${design.imageUrl}
+      `;
+
+      await Share.share({
+        message: shareMessage,
+        url: design.imageUrl,
+        title: design.title,
+      });
+    } catch (error) {
+      console.error('Error sharing design:', error);
+      Alert.alert('Error', 'Could not share the design.');
+    }
+  };
+  const downloadImage = async (imageUrl, setDownloading) => {
+    try {
+      setDownloading(true);
+      const { status } = await MediaLibrary.requestPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Premission required');
+        setDownloading(false);
+        return;
+      }
+      const fileName = imageUrl.split('/').pop();
+      const fileUri = `${FileSystem.documentDirectory}${fileName}`;
+      const downloadedFile = await FileSystem.downloadAsync(imageUrl, fileUri);
+      const asset = await MediaLibrary.createAssetAsync(downloadedFile.uri);
+      await MediaLibrary.createAlbumAsync('Nail It Designs', asset, false);
+      Alert.alert('Download Succesful!');
+    } catch (error) {
+      console.log(error);
+      Alert.alert(error);
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   useEffect(() => {
     const fetchDesigns = async () => {
       setLoading(true);
       try {
         const designList = await getDesigns();
+
         setDesigns(designList.length > 0 ? designList : null);
+        if (user?.uid) {
+          const userData = await getUserDocument(user.uid);
+          setSavedDesigns(userData?.savedDesigns || []);
+        }
       } catch (error) {
         console.error('Error fetching designs:', error);
       }
@@ -35,11 +98,19 @@ const HomeScreen = ({ navigation }) => {
     };
 
     fetchDesigns();
-  }, []);
+  }, [user?.uid]);
 
   return (
     <View style={styles.container}>
       <Header />
+      <Modal transparent={true} animationType="fade" visible={downloading}>
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContent}>
+            <Spinner />
+            <Text style={styles.loadingText}>Downloading Image...</Text>
+          </View>
+        </View>
+      </Modal>
       {/* <TouchableOpacity
         onPress={() => navigation.navigate('Test')}
         style={styles.button}
@@ -69,17 +140,19 @@ const HomeScreen = ({ navigation }) => {
             }}
             renderItem={({ item }) => (
               <View style={styles.designCard}>
-                <View style={styles.imageContainer}>
+                <View>
                   <ImageBackground
                     source={{ uri: item.imageUrl }}
                     style={styles.image}
                   >
                     <View style={styles.imageIconContainer}>
-                      <AppIcon
-                        iconSource={cameraIcon}
-                        style={styles.imageIcon}
-                        color={'white'}
-                      />
+                      <TouchableOpacity>
+                        <AppIcon
+                          iconSource={cameraIcon}
+                          style={styles.imageIcon}
+                          color={'white'}
+                        />
+                      </TouchableOpacity>
                     </View>
                   </ImageBackground>
                 </View>
@@ -95,23 +168,48 @@ const HomeScreen = ({ navigation }) => {
                     </Text>
                   </View>
                   <View style={styles.iconContainer}>
-                    <AppIcon
-                      iconSource={shareIcon}
-                      designIcon={true}
-                      size={20}
-                      color={'#040404'}
-                    />
-                    <AppIcon
-                      iconSource={downloadIcon}
-                      designIcon={true}
-                      size={20}
-                      color={'#040404'}
-                    />
-                    <AppIcon
-                      iconSource={heartIcon}
-                      size={20}
-                      color={'#040404'}
-                    />
+                    <TouchableOpacity onPress={() => shareDesign(item)}>
+                      <AppIcon
+                        iconSource={shareIcon}
+                        designIcon={true}
+                        size={20}
+                        color={'#040404'}
+                      />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() =>
+                        downloadImage(item.imageUrl, setDownloading)
+                      }
+                    >
+                      <AppIcon
+                        iconSource={downloadIcon}
+                        designIcon={true}
+                        size={20}
+                        color={'#040404'}
+                      />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={async () => {
+                        await toggledSavedDesign(userId, item.id);
+                        setSavedDesigns((prev) =>
+                          prev.includes(item.id)
+                            ? prev.filter((id) => id !== item.id)
+                            : [...prev, item.id]
+                        );
+                      }}
+                    >
+                      <AppIcon
+                        iconSource={
+                          savedDesigns.includes(item.id)
+                            ? filledHeartIcon
+                            : heartIcon
+                        }
+                        size={20}
+                        color={
+                          savedDesigns.includes(item.id) ? 'red' : '#040404'
+                        }
+                      />
+                    </TouchableOpacity>
                   </View>
                 </View>
               </View>
@@ -182,4 +280,23 @@ const styles = StyleSheet.create({
   secondaryText: { fontWeight: 200, fontSize: 14, marginVertical: 2 },
   creator: { fontWeight: 300, fontSize: 14, marginVertical: 2 },
   title: { fontSize: 18, fontWeight: 300 },
+  loadingText: {
+    fontSize: 14,
+    color: 'gray',
+    textAlign: 'center',
+    marginTop: 10,
+  },
+  modalBackground: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 30,
+    borderRadius: 10,
+    alignItems: 'center',
+    width: '80%',
+  },
 });
