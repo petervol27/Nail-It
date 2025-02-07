@@ -52,7 +52,7 @@ const HomeScreen = ({ navigation }) => {
       : designs.filter((design) => following.includes(design.creatorId));
   return (
     <View style={styles.container}>
-      <Header />
+      <Header marginTop={-20} />
       {/* 🔥 Buttons for Filtering */}
       <View style={styles.navContainer}>
         <TouchableOpacity
@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     width: '100%',
     marginBottom: 30,
-    marginTop: 60,
+    marginTop: 80,
     position: 'relative',
   },
   navButton: {

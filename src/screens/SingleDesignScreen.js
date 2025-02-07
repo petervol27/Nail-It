@@ -37,100 +37,107 @@ const SingleDesignScreen = ({ route }) => {
 
   return (
     <View style={styles.container}>
-      <Header />
+      <Header marginTop={-25} />
 
       {/* 🔥 FlatList handles scrolling, and this View is the Header Content */}
-      <FlatList
-        data={relatedDesigns}
-        keyExtractor={(item) => item.id}
-        numColumns={2}
-        columnWrapperStyle={styles.row}
-        showsVerticalScrollIndicator={false}
-        nestedScrollEnabled={true} // ✅ Allows scrolling inside a parent FlatList if needed
-        ListHeaderComponent={
-          <View>
-            {/* 🔥 Main Design */}
-            <View style={styles.content}>
-              <View style={styles.designCard}>
-                <View>
-                  <ImageBackground
-                    source={{ uri: design.imageUrl }}
-                    style={styles.image}
-                  >
-                    <View style={styles.imageIconContainer}>
+      <View style={{ flex: 1, marginTop: 40 }}>
+        <FlatList
+          data={relatedDesigns}
+          keyExtractor={(item) => item.id}
+          numColumns={2}
+          columnWrapperStyle={styles.row}
+          showsVerticalScrollIndicator={false}
+          nestedScrollEnabled={true} // ✅ Allows scrolling inside a parent FlatList if needed
+          contentContainerStyle={{ backgroundColor: '#fff' }}
+          ListHeaderComponent={
+            <View>
+              {/* 🔥 Main Design */}
+              <View style={styles.content}>
+                <View style={styles.designCard}>
+                  <View>
+                    <ImageBackground
+                      source={{ uri: design.imageUrl }}
+                      style={styles.image}
+                    >
+                      <View style={styles.imageIconContainer}>
+                        <TouchableOpacity>
+                          <AppIcon
+                            iconSource={cameraIcon}
+                            style={styles.imageIcon}
+                            color={'white'}
+                          />
+                        </TouchableOpacity>
+                      </View>
+                    </ImageBackground>
+                  </View>
+                  <View style={styles.infoContainer}>
+                    <View style={styles.textContainer}>
+                      <Text style={styles.secondaryText}>
+                        {design.likes} likes
+                      </Text>
+                      <Text style={styles.title}>{design.title}</Text>
+                      <Text style={styles.creator}>
+                        {design.creatorName} | {design.creatorCountry}
+                      </Text>
+                      <Text style={styles.secondaryText}>
+                        {timeAgo(design.createdAt)}
+                      </Text>
+                    </View>
+                    <View style={styles.iconContainer}>
                       <TouchableOpacity>
                         <AppIcon
-                          iconSource={cameraIcon}
-                          style={styles.imageIcon}
-                          color={'white'}
+                          iconSource={shareIcon}
+                          size={20}
+                          color={'#040404'}
+                        />
+                      </TouchableOpacity>
+                      <TouchableOpacity>
+                        <AppIcon
+                          iconSource={downloadIcon}
+                          size={20}
+                          color={'#040404'}
+                        />
+                      </TouchableOpacity>
+                      <TouchableOpacity>
+                        <AppIcon
+                          iconSource={heartIcon}
+                          size={20}
+                          color={'#040404'}
                         />
                       </TouchableOpacity>
                     </View>
-                  </ImageBackground>
-                </View>
-                <View style={styles.infoContainer}>
-                  <View style={styles.textContainer}>
-                    <Text style={styles.secondaryText}>
-                      {design.likes} likes
-                    </Text>
-                    <Text style={styles.title}>{design.title}</Text>
-                    <Text style={styles.creator}>
-                      {design.creatorName} | {design.creatorCountry}
-                    </Text>
-                    <Text style={styles.secondaryText}>
-                      {timeAgo(design.createdAt)}
-                    </Text>
-                  </View>
-                  <View style={styles.iconContainer}>
-                    <TouchableOpacity>
-                      <AppIcon
-                        iconSource={shareIcon}
-                        size={20}
-                        color={'#040404'}
-                      />
-                    </TouchableOpacity>
-                    <TouchableOpacity>
-                      <AppIcon
-                        iconSource={downloadIcon}
-                        size={20}
-                        color={'#040404'}
-                      />
-                    </TouchableOpacity>
-                    <TouchableOpacity>
-                      <AppIcon
-                        iconSource={heartIcon}
-                        size={20}
-                        color={'#040404'}
-                      />
-                    </TouchableOpacity>
                   </View>
                 </View>
               </View>
-            </View>
 
-            {/* 🔥 "Try It On" Button */}
-            <TouchableOpacity style={styles.tryButton}>
-              <Text style={styles.tryButtonText}>Try It On</Text>
+              {/* 🔥 "Try It On" Button */}
+              <TouchableOpacity style={styles.tryButton}>
+                <Text style={styles.tryButtonText}>Try It On</Text>
+              </TouchableOpacity>
+
+              {/* 🔥 "You Might Also Like" Section Title */}
+              <Text style={styles.sectionTitle}>You Might Also Like</Text>
+            </View>
+          }
+          renderItem={({ item }) => (
+            <TouchableOpacity key={item.id} style={styles.relatedCard}>
+              <View style={styles.imageContainer}>
+                <Image
+                  source={{ uri: item.imageUrl }}
+                  style={styles.relatedImage}
+                />
+                <View style={styles.imageIconContainer}>
+                  <AppIcon
+                    iconSource={cameraIcon}
+                    size={20}
+                    color={'#C85D7C'}
+                  />
+                </View>
+              </View>
             </TouchableOpacity>
-
-            {/* 🔥 "You Might Also Like" Section Title */}
-            <Text style={styles.sectionTitle}>You Might Also Like</Text>
-          </View>
-        }
-        renderItem={({ item }) => (
-          <TouchableOpacity key={item.id} style={styles.relatedCard}>
-            <View style={styles.imageContainer}>
-              <Image
-                source={{ uri: item.imageUrl }}
-                style={styles.relatedImage}
-              />
-              <View style={styles.imageIconContainer}>
-                <AppIcon iconSource={cameraIcon} size={20} color={'#C85D7C'} />
-              </View>
-            </View>
-          </TouchableOpacity>
-        )}
-      />
+          )}
+        />
+      </View>
     </View>
   );
 };
