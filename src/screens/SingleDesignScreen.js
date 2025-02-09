@@ -7,21 +7,35 @@ import {
   TouchableOpacity,
   FlatList,
   Image,
+  Modal,
+  Alert,
+  Share,
 } from 'react-native';
 import { UserContext } from '../context/UserContext';
-import { getDesigns } from '../utils/firestore';
+import {
+  getDesigns,
+  getUserDocument,
+  toggleLikeDesign,
+} from '../utils/firestore';
 import AppIcon from '../components/AppIcon';
 import cameraIcon from '../assets/icons/camera.png';
 import shareIcon from '../assets/icons/shareIcon.png';
 import downloadIcon from '../assets/icons/downloadIcon.png';
 import heartIcon from '../assets/icons/heart.png';
+import filledHeartIcon from '../assets/icons/filledHeart.png';
 import Header from '../components/Header';
 import { timeAgo } from '../helpers';
+import generalStyles from '../assets/styles/generalStyles';
+import Spinner from '../components/Spinner';
+import * as FileSystem from 'expo-file-system';
+import * as MediaLibrary from 'expo-media-library';
 
-const SingleDesignScreen = ({ route }) => {
+const SingleDesignScreen = ({ route, navigation }) => {
   const { design } = route.params;
   const { user } = useContext(UserContext);
   const [relatedDesigns, setRelatedDesigns] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     const fetchRelatedDesigns = async () => {
@@ -34,11 +48,62 @@ const SingleDesignScreen = ({ route }) => {
 
     fetchRelatedDesigns();
   }, [design.id]);
+  const shareDesign = async (design) => {
+    try {
+      const shareMessage = `
+          🎨 **${design.title}**
+          ❤️ ${design.likes} Likes
+          👤 By ${design.creatorName} from ${design.creatorCountry}
+
+          Check out this amazing design on Nail It! 🚀
+          ${design.imageUrl}
+        `;
+
+      await Share.share({
+        message: shareMessage,
+        url: design.imageUrl,
+        title: design.title,
+      });
+    } catch (error) {
+      console.error('Error sharing design:', error);
+      Alert.alert('Error', 'Could not share the design.');
+    }
+  };
+  const downloadImage = async (imageUrl, setDownloading) => {
+    try {
+      setDownloading(true);
+
+      const { status } = await MediaLibrary.requestPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Premission required');
+        setDownloading(false);
+        return;
+      }
+      const fileName = imageUrl.split('/').pop();
+      const fileUri = `${FileSystem.documentDirectory}${fileName}`;
+      const downloadedFile = await FileSystem.downloadAsync(imageUrl, fileUri);
+      const asset = await MediaLibrary.createAssetAsync(downloadedFile.uri);
+      await MediaLibrary.createAlbumAsync('Nail It Designs', asset, false);
+      Alert.alert('Download Succesful!');
+    } catch (error) {
+      console.log(error);
+      Alert.alert(error);
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   return (
     <View style={styles.container}>
       <Header marginTop={-25} />
-
+      <Modal transparent={true} animationType="fade" visible={!!downloading}>
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContent}>
+            <Spinner />
+            <Text style={styles.loadingText}>Downloading Image...</Text>
+          </View>
+        </View>
+      </Modal>
       {/* 🔥 FlatList handles scrolling, and this View is the Header Content */}
       <View style={{ flex: 1, marginTop: 40 }}>
         <FlatList
@@ -59,7 +124,7 @@ const SingleDesignScreen = ({ route }) => {
                       source={{ uri: design.imageUrl }}
                       style={styles.image}
                     >
-                      <View style={styles.imageIconContainer}>
+                      <View style={styles.mainIconContainer}>
                         <TouchableOpacity>
                           <AppIcon
                             iconSource={cameraIcon}
@@ -84,14 +149,18 @@ const SingleDesignScreen = ({ route }) => {
                       </Text>
                     </View>
                     <View style={styles.iconContainer}>
-                      <TouchableOpacity>
+                      <TouchableOpacity onPress={() => shareDesign(design)}>
                         <AppIcon
                           iconSource={shareIcon}
                           size={20}
                           color={'#040404'}
                         />
                       </TouchableOpacity>
-                      <TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() =>
+                          downloadImage(design.imageUrl, setDownloading)
+                        }
+                      >
                         <AppIcon
                           iconSource={downloadIcon}
                           size={20}
@@ -111,8 +180,14 @@ const SingleDesignScreen = ({ route }) => {
               </View>
 
               {/* 🔥 "Try It On" Button */}
-              <TouchableOpacity style={styles.tryButton}>
-                <Text style={styles.tryButtonText}>Try It On</Text>
+              <TouchableOpacity
+                style={[
+                  generalStyles.button,
+                  generalStyles.buttonMain,
+                  generalStyles.smallerButton,
+                ]}
+              >
+                <Text style={[generalStyles.buttonText]}>Try It On</Text>
               </TouchableOpacity>
 
               {/* 🔥 "You Might Also Like" Section Title */}
@@ -120,8 +195,14 @@ const SingleDesignScreen = ({ route }) => {
             </View>
           }
           renderItem={({ item }) => (
-            <TouchableOpacity key={item.id} style={styles.relatedCard}>
-              <View style={styles.imageContainer}>
+            <TouchableOpacity
+              key={item.id}
+              style={styles.relatedCard}
+              onPress={() => {
+                navigation.replace('SingleDesign', { design: item });
+              }}
+            >
+              <View>
                 <Image
                   source={{ uri: item.imageUrl }}
                   style={styles.relatedImage}
@@ -147,12 +228,12 @@ export default SingleDesignScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 10,
     backgroundColor: '#fff',
   },
   content: {
     flex: 1,
     marginTop: 50,
+    wdith: '100%',
   },
   designCard: {
     flex: 1,
@@ -173,6 +254,21 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   imageIconContainer: {
+    position: 'absolute',
+    bottom: 12,
+    right: 8,
+    width: 32, // ✅ Circle size
+    height: 32,
+    borderRadius: 16, // ✅ Makes it a perfect circle
+    backgroundColor: 'white', // ✅ White background
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000', // ✅ Optional: Shadow for better visibility
+    shadowOpacity: 0.3,
+    shadowRadius: 7,
+    elevation: 5, // ✅ Android shadow
+  },
+  mainIconContainer: {
     position: 'absolute',
     bottom: 20,
     right: 0,
@@ -197,23 +293,12 @@ const styles = StyleSheet.create({
   secondaryText: { fontWeight: 200, fontSize: 14, marginVertical: 2 },
   creator: { fontWeight: 300, fontSize: 14, marginVertical: 2 },
   title: { fontSize: 18, fontWeight: 300 },
-  tryButton: {
-    backgroundColor: '#C85D7C',
-    paddingVertical: 12,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginTop: 15,
-  },
-  tryButtonText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     marginTop: 20,
     marginBottom: 10,
+    marginStart: 15,
   },
   row: {
     justifyContent: 'space-between',
@@ -235,5 +320,24 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     borderRadius: 10,
+  },
+  loadingText: {
+    fontSize: 14,
+    color: 'gray',
+    textAlign: 'center',
+    marginTop: 10,
+  },
+  modalBackground: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 30,
+    borderRadius: 10,
+    alignItems: 'center',
+    width: '80%',
   },
 });

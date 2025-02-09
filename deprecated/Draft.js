@@ -16,12 +16,7 @@ import shareIcon from '../assets/icons/shareIcon.png';
 import heartIcon from '../assets/icons/heart.png';
 import filledHeartIcon from '../assets/icons/filledHeart.png';
 import cameraIcon from '../assets/icons/camera.png';
-import {
-  getDesigns,
-  getUserDocument,
-  toggledSavedDesign,
-  likeDesign,
-} from '../utils/firestore';
+import { getDesigns, getUserDocument, likeDesign } from '../utils/firestore';
 import Header from '../components/Header';
 import Spinner from '../components/Spinner';
 import AppIcon from '../components/AppIcon';

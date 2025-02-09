@@ -144,28 +144,28 @@ export const getDesigns = async () => {
   }
 };
 
-export const toggledSavedDesign = async (userId, designId) => {
-  try {
-    const userRef = doc(firestore, 'users', userId);
-    const userDoc = await getDoc(userRef);
-    if (!userDoc.exists()) {
-      console.error('User document not found.');
-      return;
-    }
-    const userData = userDoc.data();
-    const isSaved = userData.savedDesigns?.includes(designId);
-    await updateDoc(userRef, {
-      savedDesigns: isSaved ? arrayRemove(designId) : arrayUnion(designId),
-    });
-    console.log(
-      isSaved ? 'Design removed from saved list' : 'Design saved successfully'
-    );
-  } catch (error) {
-    console.error('Error toggling saved design:', error);
-  }
-};
+// export const toggledSavedDesign = async (userId, designId) => {
+//   try {
+//     const userRef = doc(firestore, 'users', userId);
+//     const userDoc = await getDoc(userRef);
+//     if (!userDoc.exists()) {
+//       console.error('User document not found.');
+//       return;
+//     }
+//     const userData = userDoc.data();
+//     const isSaved = userData.savedDesigns?.includes(designId);
+//     await updateDoc(userRef, {
+//       savedDesigns: isSaved ? arrayRemove(designId) : arrayUnion(designId),
+//     });
+//     console.log(
+//       isSaved ? 'Design removed from saved list' : 'Design saved successfully'
+//     );
+//   } catch (error) {
+//     console.error('Error toggling saved design:', error);
+//   }
+// };
 
-export const likeDesign = async (designId, userId) => {
+export const toggleLikeDesign = async (designId, userId) => {
   try {
     const designRef = doc(firestore, 'designs', designId);
     const designSnap = await getDoc(designRef);
@@ -176,19 +176,29 @@ export const likeDesign = async (designId, userId) => {
     }
 
     const designData = designSnap.data();
-    const alreadyLiked = designData.likedBy?.includes(userId); // ✅ Prevent multiple likes
+    const alreadyLiked = designData.likedBy?.includes(userId);
 
-    if (!alreadyLiked) {
+    if (alreadyLiked) {
+      // ✅ Unlike the design
+      await updateDoc(designRef, {
+        likes: designData.likes - 1,
+        likedBy: arrayRemove(userId),
+      });
+
+      console.log('Like removed.');
+      return false; // Return new state
+    } else {
+      // ✅ Like the design
       await updateDoc(designRef, {
         likes: designData.likes + 1,
-        likedBy: arrayUnion(userId), // ✅ Store user IDs who liked the post
+        likedBy: arrayUnion(userId),
       });
 
       console.log('Design liked successfully!');
-    } else {
-      console.log('User already liked this design.');
+      return true; // Return new state
     }
   } catch (error) {
-    console.error('Error liking design:', error);
+    console.error('Error toggling like:', error);
+    return null; // Handle error case
   }
 };
