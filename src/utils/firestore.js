@@ -11,6 +11,7 @@ import {
   collection,
   addDoc,
   arrayRemove,
+  where,
 } from 'firebase/firestore';
 import { firestore } from '../firebase';
 
@@ -36,7 +37,6 @@ export const createUserDocument = async (userId, userData) => {
     nailCrewFollowing: [], // Array of user IDs
     savedDesigns: [], // Array of design IDs
     myDesigns: [], // Array of design IDs
-    inspirations: [], // Array of design IDs
     createdAt: Timestamp.now(),
   };
 
@@ -54,17 +54,15 @@ export const createUserDocument = async (userId, userData) => {
  * @param {object} updates - The updates to apply to the user document.
  * @returns {Promise<string>} A success message.
  */
-export const updateUserDocument = async (userId, updates) => {
-  const userRef = doc(firestore, 'users', userId);
-
+export const updateUserProfile = async (userId, updatedData) => {
   try {
-    await updateDoc(userRef, updates);
-    return 'User document updated successfully';
+    await updateDoc(doc(firestore, 'users', userId), updatedData);
+    return { success: true, message: 'Profile updated successfully' };
   } catch (error) {
-    throw new Error('Error updating user document: ' + error.message);
+    console.error('Error updating profile:', error);
+    return { success: false, message: error.message };
   }
 };
-
 /**
  * Get user data from Firestore.
  * @param {string} userId - The Firebase Auth user ID.
@@ -109,14 +107,18 @@ export const addFollower = async (userId, followerId) => {
 
 export const createDesign = async (designData) => {
   try {
-    // Create a reference to a new document in the "designs" collection
+    // ✅ Ensure creatorId exists before proceeding
+    if (!designData.creatorId) {
+      throw new Error('Creator ID is missing. Cannot create design.');
+    }
+
     const docRef = doc(collection(firestore, 'designs'));
 
-    // Set the document with a unique ID (like how user documents work)
     await setDoc(docRef, {
       ...designData,
-      createdAt: Timestamp.now(), // 🛠 Fix: Use "createdAt" consistently
+      createdAt: Timestamp.now(), // ✅ Keep timestamp consistent
       likes: 0,
+      likedBy: [], // ✅ Ensure likedBy is an array to avoid indexOf error
     });
 
     return { id: docRef.id, ...designData, createdAt: Timestamp.now() };
@@ -200,5 +202,64 @@ export const toggleLikeDesign = async (designId, userId) => {
   } catch (error) {
     console.error('Error toggling like:', error);
     return null; // Handle error case
+  }
+};
+
+export const getDesignById = async (designId) => {
+  try {
+    const designRef = doc(firestore, 'designs', designId);
+    const designSnap = await getDoc(designRef);
+
+    if (designSnap.exists()) {
+      return { id: designSnap.id, ...designSnap.data() };
+    } else {
+      console.error('Design not found.');
+      return null;
+    }
+  } catch (error) {
+    console.error('Error fetching design:', error);
+    return null;
+  }
+};
+
+// 🔥 Get all user-uploaded designs (Gallery)
+export const getUserUploadedDesigns = async (userId) => {
+  try {
+    const designsQuery = query(
+      collection(firestore, 'designs'),
+      where('creatorId', '==', userId) // ✅ Only get designs the user created
+    );
+
+    const snapshot = await getDocs(designsQuery);
+    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+  } catch (error) {
+    console.error('Error fetching user designs:', error);
+    return [];
+  }
+};
+
+// 🔥 Get all saved designs (My Designs)
+export const getSavedDesigns = async (userId) => {
+  try {
+    const userRef = doc(firestore, 'users', userId);
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) return [];
+
+    const userData = userSnap.data();
+    const designIds = userData.savedDesigns || [];
+
+    if (designIds.length === 0) return [];
+
+    const designsQuery = query(
+      collection(firestore, 'designs'),
+      where('__name__', 'in', designIds)
+    );
+    const designsSnap = await getDocs(designsQuery);
+
+    return designsSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+  } catch (error) {
+    console.error('Error fetching saved designs:', error);
+    return [];
   }
 };

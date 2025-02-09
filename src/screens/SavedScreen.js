@@ -5,9 +5,11 @@ import {
   StyleSheet,
   ScrollView,
   RefreshControl,
+  TouchableOpacity,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-
+import generalStyles from '../assets/styles/generalStyles';
+import { logoutUser } from '../utils/auth';
 const SavedScreen = () => {
   const navigation = useNavigation();
   const [refreshing, setRefreshing] = useState(false);
@@ -40,6 +42,18 @@ const SavedScreen = () => {
       }
     >
       <Text style={styles.text}>Pull down to refresh the app!</Text>
+      <TouchableOpacity
+        style={[generalStyles.button, generalStyles.buttonMain]}
+        onPress={() => logoutUser()}
+      >
+        <Text style={generalStyles.buttonText}>Log Out</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[generalStyles.button, generalStyles.buttonMain]}
+        onPress={() => navigation.navigate('Test')}
+      >
+        <Text style={generalStyles.buttonText}>Test Uplaod</Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 };

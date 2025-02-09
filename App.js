@@ -13,6 +13,7 @@ import UserProvider, { UserContext } from './src/context/UserContext';
 import UserDetailsScreen from './src/screens/userDetailsScreen';
 import UploadDesignScreen from './src/screens/TestUpload';
 import SingleDesignScreen from './src/screens/SingleDesignScreen';
+import EditProfileScreen from './src/screens/EditProfileScreen';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -56,12 +57,9 @@ const App = () => {
         ) : (
           <>
             <Stack.Screen name="Main" component={TabNavigator} />
+            {/* <Stack.Screen name="SingleDesign" component={SingleDesignScreen} /> */}
             <Stack.Screen name="Test" component={UploadDesignScreen} />
-            <Stack.Screen
-              name="singleDesign"
-              component={SingleDesignScreen}
-              options={{ headerShown: true }}
-            />
+            <Stack.Screen name="EditProfile" component={EditProfileScreen} />
           </>
         )}
       </Stack.Navigator>

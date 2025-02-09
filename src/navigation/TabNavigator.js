@@ -29,7 +29,6 @@ const HomeStack = createStackNavigator(); // ✅ Create a stack navigator for Ho
 const HomeStackNavigator = () => {
   return (
     <HomeStack.Navigator screenOptions={{ headerShown: false }}>
-      {/* <HomeStack.Screen name="Instructions" component={InstructionsScreen} /> */}
       <HomeStack.Screen name="HomeMain" component={HomeScreen} />
       <HomeStack.Screen name="SingleDesign" component={SingleDesignScreen} />
     </HomeStack.Navigator>
@@ -55,7 +54,7 @@ const TabNavigator = () => {
 
           if (route.name === 'Home') {
             iconSource = homeIcon;
-          } else if (route.name === 'Profile') {
+          } else if (route.name === 'MyProfile') {
             iconSource = profileIcon;
           } else if (route.name === 'Saved') {
             iconSource = savedIcon;
@@ -130,7 +129,7 @@ const TabNavigator = () => {
         }}
       />
       <Tab.Screen name="Saved" component={SavedScreen} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
+      <Tab.Screen name="MyProfile" component={ProfileScreen} />
     </Tab.Navigator>
   );
 };

@@ -10,15 +10,16 @@ import {
   Dimensions,
 } from 'react-native';
 import cameraIcon from '../assets/icons/camera.png';
-import { getDesigns, getUserDocument } from '../utils/firestore';
+import { getDesigns } from '../utils/firestore';
 import Header from '../components/Header';
 import Spinner from '../components/Spinner';
 import AppIcon from '../components/AppIcon';
-
 import { UserContext } from '../context/UserContext';
+
 const screenWidth = Dimensions.get('window').width;
-const padding = 20; // ✅ Adjust based on total padding
-const tabWidth = (screenWidth - padding) / 2; // ✅ Ensures correct width
+const padding = 20;
+const tabWidth = (screenWidth - padding) / 2;
+
 const HomeScreen = ({ navigation }) => {
   const { user } = useContext(UserContext);
   const [designs, setDesigns] = useState([]);
@@ -26,12 +27,14 @@ const HomeScreen = ({ navigation }) => {
   const [following, setFollowing] = useState([]);
   const [loading, setLoading] = useState(false);
   const underlinePosition = useRef(new Animated.Value(0)).current;
+
   useEffect(() => {
     Animated.timing(underlinePosition, {
-      toValue: filterDesigns === 'all' ? 10 : tabWidth + 10, // ✅ Moves underline correctly
+      toValue: filterDesigns === 'all' ? 10 : tabWidth + 10,
       duration: 300,
-      useNativeDriver: false, // ✅ Required for layout animations
+      useNativeDriver: false,
     }).start();
+
     const fetchDesigns = async () => {
       setLoading(true);
       try {
@@ -50,82 +53,82 @@ const HomeScreen = ({ navigation }) => {
     filterDesigns === 'all'
       ? designs
       : designs.filter((design) => following.includes(design.creatorId));
+
   return (
     <View style={styles.container}>
-      <Header marginTop={-20} />
-      {/* 🔥 Buttons for Filtering */}
-      <View style={styles.navContainer}>
-        <TouchableOpacity
-          style={[
-            styles.navButton,
-            filterDesigns === 'all' && styles.activeNav, // ✅ Border applied to full button
-          ]}
-          onPress={() => setFilterDesigns('all')}
-        >
-          <Text style={styles.navText}>For You</Text>
-        </TouchableOpacity>
+      <FlatList
+        data={filteredDesigns}
+        keyExtractor={(item) => item.id}
+        numColumns={2}
+        columnWrapperStyle={styles.row}
+        showsVerticalScrollIndicator={false}
+        ListHeaderComponent={
+          <>
+            {/* 🔥 Header stays in ListHeaderComponent */}
+            <Header />
 
-        <TouchableOpacity
-          style={[
-            styles.navButton,
-            filterDesigns === 'following' && styles.activeNav, // ✅ Border applied to full button
-          ]}
-          onPress={() => setFilterDesigns('following')}
-        >
-          <Text style={styles.navText}>Following</Text>
-        </TouchableOpacity>
-        <Animated.View
-          style={[
-            styles.underline,
-            {
-              width: tabWidth - 20, // ✅ Keeps width consistent
-              left: underlinePosition, // ✅ Now using `left` instead of `translateX`
-              opacity: 1, // ✅ Always visible
-            },
-          ]}
-        />
-      </View>
+            {/* 🔥 Navigation Tabs */}
+            <View style={styles.navContainer}>
+              <TouchableOpacity
+                style={[
+                  styles.navButton,
+                  filterDesigns === 'all' && styles.activeNav,
+                ]}
+                onPress={() => setFilterDesigns('all')}
+              >
+                <Text style={styles.navText}>For You</Text>
+              </TouchableOpacity>
 
-      {/* <TouchableOpacity
-        onPress={() => navigation.navigate('Test')}
-        style={styles.button}
-      >
-        <Text style={styles.buttonText}>Upload New Design</Text>
-      </TouchableOpacity> */}
-      {loading ? (
-        <Spinner />
-      ) : filteredDesigns.length === 0 ? ( // ✅ Show message if no designs
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>You're not following anyone yet.</Text>
-        </View>
-      ) : (
-        <FlatList
-          data={filteredDesigns}
-          keyExtractor={(item) => item.id}
-          numColumns={2}
-          columnWrapperStyle={styles.row}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              onPress={() =>
-                navigation.navigate('SingleDesign', { design: item })
-              } // ✅ Navigate on click
-              style={styles.designCard}
-            >
-              <View style={styles.imageWrapper}>
-                <Image source={{ uri: item.imageUrl }} style={styles.image} />
-                <View style={styles.iconContainer}>
-                  <AppIcon
-                    iconSource={cameraIcon}
-                    size={20}
-                    color={'#C85D7C'}
-                  />
-                </View>
+              <TouchableOpacity
+                style={[
+                  styles.navButton,
+                  filterDesigns === 'following' && styles.activeNav,
+                ]}
+                onPress={() => setFilterDesigns('following')}
+              >
+                <Text style={styles.navText}>Following</Text>
+              </TouchableOpacity>
+
+              <Animated.View
+                style={[
+                  styles.underline,
+                  {
+                    width: tabWidth - 20,
+                    left: underlinePosition,
+                    opacity: 1,
+                  },
+                ]}
+              />
+            </View>
+          </>
+        }
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            onPress={() =>
+              navigation.navigate('SingleDesign', { design: item })
+            }
+            style={styles.designCard}
+          >
+            <View style={styles.imageWrapper}>
+              <Image source={{ uri: item.imageUrl }} style={styles.image} />
+              <View style={styles.iconContainer}>
+                <AppIcon iconSource={cameraIcon} size={20} color={'#C85D7C'} />
               </View>
-            </TouchableOpacity>
-          )}
-          showsVerticalScrollIndicator={false}
-        />
-      )}
+            </View>
+          </TouchableOpacity>
+        )}
+        ListEmptyComponent={() =>
+          loading ? (
+            <Spinner />
+          ) : (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>
+                You're not following anyone yet.
+              </Text>
+            </View>
+          )
+        }
+      />
     </View>
   );
 };
@@ -135,29 +138,27 @@ export default HomeScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#fff',
     paddingHorizontal: 10,
   },
   navContainer: {
     flexDirection: 'row',
     width: '100%',
-    marginBottom: 30,
-    marginTop: 80,
-    position: 'relative',
+    marginBottom: 20,
   },
   navButton: {
     flex: 1,
     alignItems: 'center',
-    paddingVertical: 20,
+    paddingVertical: 15,
   },
   navText: {
-    fontSize: 20,
-    fontWeight: 400,
+    fontSize: 18,
+    fontWeight: '400',
   },
-
   underline: {
     position: 'absolute',
-    bottom: 8, // 🔥 Moves it closer to the text but keeps click area
-    height: 1, // ✅ Slightly thicker for better visibility
+    bottom: 8,
+    height: 2,
     backgroundColor: '#000',
     borderRadius: 5,
   },
@@ -172,22 +173,22 @@ const styles = StyleSheet.create({
     color: 'gray',
   },
   row: {
-    justifyContent: 'space-between', // ✅ Ensures spacing between columns
+    justifyContent: 'space-between',
     paddingHorizontal: 10,
   },
   designCard: {
-    width: '48%', // ✅ Each item takes half of the screen width
-    aspectRatio: 1, // ✅ Ensures square shape
+    width: '48%',
+    aspectRatio: 1,
     marginBottom: 10,
-    backgroundColor: '#fff', // ✅ Ensures shadow looks proper
-    shadowColor: '#000', // ✅ Stronger shadow effect
-    shadowOpacity: 0.15, // 🔥 Increase for darker shadow
-    shadowRadius: 5, // 🔥 More spread for depth
-    shadowOffset: { width: 0, height: 4 }, // 🔥, // 🔥 More depth
-    elevation: 8, // ✅ Stronger Android shadow
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 8,
   },
   imageWrapper: {
-    position: 'relative', // ✅ Allows absolute positioning of icon
+    position: 'relative',
     width: '100%',
     height: '100%',
   },
@@ -199,15 +200,15 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 8,
     right: 8,
-    width: 32, // ✅ Circle size
+    width: 32,
     height: 32,
-    borderRadius: 16, // ✅ Makes it a perfect circle
-    backgroundColor: 'white', // ✅ White background
+    borderRadius: 16,
+    backgroundColor: 'white',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000', // ✅ Optional: Shadow for better visibility
+    shadowColor: '#000',
     shadowOpacity: 0.3,
     shadowRadius: 7,
-    elevation: 5, // ✅ Android shadow
+    elevation: 5,
   },
 });

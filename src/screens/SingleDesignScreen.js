@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import {
   View,
   Text,
@@ -10,11 +10,13 @@ import {
   Modal,
   Alert,
   Share,
+  BackHandler,
+  Platform,
 } from 'react-native';
 import { UserContext } from '../context/UserContext';
 import {
   getDesigns,
-  getUserDocument,
+  getDesignById,
   toggleLikeDesign,
 } from '../utils/firestore';
 import AppIcon from '../components/AppIcon';
@@ -29,15 +31,29 @@ import generalStyles from '../assets/styles/generalStyles';
 import Spinner from '../components/Spinner';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
-
+import { useFocusEffect } from '@react-navigation/native';
 const SingleDesignScreen = ({ route, navigation }) => {
-  const { design } = route.params;
+  const { design, previousScreen } = route.params || {};
   const { user } = useContext(UserContext);
   const [relatedDesigns, setRelatedDesigns] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
+  const [likesCount, setLikesCount] = useState(design.likes);
 
+  // ✅ Handle Android Back Button
   useEffect(() => {
+    const fetchUpdatedDesign = async () => {
+      try {
+        const updatedDesign = await getDesignById(design.id); // ✅ Fetch from Firestore
+        if (updatedDesign) {
+          setIsLiked(updatedDesign.likedBy?.includes(user.uid)); // ✅ Update like state
+          setLikesCount(updatedDesign.likes); // ✅ Update like count
+        }
+      } catch (error) {
+        console.error('Error fetching updated design:', error);
+      }
+    };
+
     const fetchRelatedDesigns = async () => {
       const allDesigns = await getDesigns();
       const filteredDesigns = allDesigns.filter(
@@ -46,8 +62,10 @@ const SingleDesignScreen = ({ route, navigation }) => {
       setRelatedDesigns(filteredDesigns.slice(0, 6));
     };
 
+    fetchUpdatedDesign(); // ✅ Fetch latest likes state
     fetchRelatedDesigns();
   }, [design.id]);
+
   const shareDesign = async (design) => {
     try {
       const shareMessage = `
@@ -93,9 +111,20 @@ const SingleDesignScreen = ({ route, navigation }) => {
     }
   };
 
+  const toggleLike = async () => {
+    try {
+      await toggleLikeDesign(design.id, user.uid); // ✅ Firestore function
+
+      setIsLiked((prev) => !prev); // ✅ Instant UI update
+      setLikesCount((prev) => (isLiked ? prev - 1 : prev + 1)); // ✅ Update like count
+    } catch (error) {
+      console.error('Error toggling like:', error);
+    }
+  };
+
   return (
     <View style={styles.container}>
-      <Header marginTop={-25} />
+      <Header />
       <Modal transparent={true} animationType="fade" visible={!!downloading}>
         <View style={styles.modalBackground}>
           <View style={styles.modalContent}>
@@ -105,7 +134,7 @@ const SingleDesignScreen = ({ route, navigation }) => {
         </View>
       </Modal>
       {/* 🔥 FlatList handles scrolling, and this View is the Header Content */}
-      <View style={{ flex: 1, marginTop: 40 }}>
+      <View style={{ flex: 1 }}>
         <FlatList
           data={relatedDesigns}
           keyExtractor={(item) => item.id}
@@ -138,7 +167,7 @@ const SingleDesignScreen = ({ route, navigation }) => {
                   <View style={styles.infoContainer}>
                     <View style={styles.textContainer}>
                       <Text style={styles.secondaryText}>
-                        {design.likes} likes
+                        {likesCount} likes
                       </Text>
                       <Text style={styles.title}>{design.title}</Text>
                       <Text style={styles.creator}>
@@ -167,11 +196,11 @@ const SingleDesignScreen = ({ route, navigation }) => {
                           color={'#040404'}
                         />
                       </TouchableOpacity>
-                      <TouchableOpacity>
+                      <TouchableOpacity onPress={toggleLike}>
                         <AppIcon
-                          iconSource={heartIcon}
+                          iconSource={isLiked ? filledHeartIcon : heartIcon}
                           size={20}
-                          color={'#040404'}
+                          color={isLiked ? 'red' : '#040404'}
                         />
                       </TouchableOpacity>
                     </View>
@@ -232,8 +261,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    marginTop: 50,
-    wdith: '100%',
+    width: '100%',
   },
   designCard: {
     flex: 1,

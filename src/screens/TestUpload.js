@@ -89,10 +89,10 @@ const UploadDesignScreen = ({ navigation }) => {
 
     const designData = {
       title,
-      imageUrl: downloadUrl, // ✅ Save Firebase URL instead of local file path
-      creatorId: user.uid,
-      creatorName: user.name,
-      creatorCountry: user.country,
+      imageUrl: downloadUrl || '', // ✅ Ensure it's not undefined
+      creatorId: user?.uid || 'unknown', // ✅ Ensure creatorId exists
+      creatorName: user?.name || 'Anonymous',
+      creatorCountry: user?.country || 'Unknown',
     };
 
     const newDesign = await createDesign(designData);

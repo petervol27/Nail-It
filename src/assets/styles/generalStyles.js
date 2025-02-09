@@ -130,6 +130,7 @@ const generalStyles = StyleSheet.create({
     fontWeight: 300,
     fontSize: 28,
   },
+  titleHeaderSmall: { fontSize: 24 },
 });
 
 export default generalStyles;
