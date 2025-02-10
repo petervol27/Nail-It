@@ -14,6 +14,7 @@ import UserDetailsScreen from './src/screens/userDetailsScreen';
 import UploadDesignScreen from './src/screens/TestUpload';
 import SingleDesignScreen from './src/screens/SingleDesignScreen';
 import EditProfileScreen from './src/screens/EditProfileScreen';
+import UserProfileScreen from './src/screens/UserProfileScreen';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -60,6 +61,7 @@ const App = () => {
             {/* <Stack.Screen name="SingleDesign" component={SingleDesignScreen} /> */}
             <Stack.Screen name="Test" component={UploadDesignScreen} />
             <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+            {/* <Stack.Screen name="UserProfile" component={UserProfileScreen} /> */}
           </>
         )}
       </Stack.Navigator>

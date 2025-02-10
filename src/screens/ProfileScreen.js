@@ -10,7 +10,11 @@ import {
   Dimensions,
 } from 'react-native';
 import { UserContext } from '../context/UserContext';
-import { getUserUploadedDesigns, getSavedDesigns } from '../utils/firestore';
+import {
+  getUserUploadedDesigns,
+  getSavedDesigns,
+  getUserById,
+} from '../utils/firestore';
 import Header from '../components/Header';
 
 const screenWidth = Dimensions.get('window').width;
@@ -23,7 +27,7 @@ const ProfileScreen = ({ navigation }) => {
   const [galleryDesigns, setGalleryDesigns] = useState([]);
   const [savedDesigns, setSavedDesigns] = useState([]);
   const underlinePosition = useRef(new Animated.Value(15)).current;
-
+  const [followersData, setFollowersData] = useState([]);
   useEffect(() => {
     Animated.timing(underlinePosition, {
       toValue: activeTab === 'Gallery' ? 15 : tabWidth - 85,
@@ -42,9 +46,26 @@ const ProfileScreen = ({ navigation }) => {
       setGalleryDesigns(uploadedDesigns);
       setSavedDesigns(savedDesignsData);
     };
+    const fetchFollowers = async () => {
+      if (!user.nailCrewFollowers || user.nailCrewFollowers.length === 0)
+        return;
+
+      try {
+        const followersDetails = await Promise.all(
+          user.nailCrewFollowers.map(async (followerId) => {
+            const followerData = await getUserById(followerId);
+            return { id: followerId, ...followerData }; // ✅ Combine ID + data
+          })
+        );
+        setFollowersData(followersDetails);
+      } catch (error) {
+        console.error('Error fetching followers:', error);
+      }
+    };
 
     fetchData();
-  }, [user]);
+    fetchFollowers();
+  }, [user, user.nailCrewFollowers]);
 
   return (
     <View style={styles.container}>
@@ -80,13 +101,20 @@ const ProfileScreen = ({ navigation }) => {
             <View style={styles.sectionContainer}>
               <View style={styles.sectionHeader}>
                 <Text style={styles.sectionTitle}>My Nail Art Crew</Text>
-                <TouchableOpacity onPress={() => alert('test')}>
+                <TouchableOpacity
+                  onPress={() =>
+                    navigation.navigate('Home', {
+                      screen: 'FollowersList',
+                      params: { followers: user.nailCrewFollowers },
+                    })
+                  }
+                >
                   <Text style={styles.showAll}>Show All</Text>
                 </TouchableOpacity>
               </View>
 
               <FlatList
-                data={user.nailCrewFollowers.slice(0, 5)}
+                data={followersData.slice(0, 5)}
                 horizontal
                 keyExtractor={(item) => item.id}
                 showsHorizontalScrollIndicator={false}
@@ -94,13 +122,23 @@ const ProfileScreen = ({ navigation }) => {
                 renderItem={({ item }) => (
                   <TouchableOpacity
                     style={styles.followerCard}
-                    onPress={() => alert('test')}
+                    onPress={() =>
+                      navigation.navigate('Home', {
+                        screen: 'UserProfile',
+                        params: {
+                          userId: item.id,
+                        },
+                      })
+                    }
                   >
-                    <Image
-                      source={{ uri: item.profilePicture }}
-                      style={styles.followerAvatar}
-                    />
-                    <Text style={styles.followerName}>{item.name}</Text>
+                    {item.profileImage ? (
+                      <Image
+                        source={{ uri: item.profileImage }}
+                        style={styles.followerAvatar}
+                      />
+                    ) : (
+                      <View style={styles.followerAvatar} />
+                    )}
                   </TouchableOpacity>
                 )}
               />
@@ -159,9 +197,12 @@ const ProfileScreen = ({ navigation }) => {
           <TouchableOpacity
             style={[styles.designCard, index % 3 === 2 && { marginRight: 0 }]}
             onPress={() =>
-              navigation.navigate('SingleDesign', {
-                design: item,
-                previousScreen: 'Profile',
+              navigation.navigate('Home', {
+                screen: 'SingleDesign',
+                params: {
+                  design: item,
+                  previousScreen: 'Profile',
+                },
               })
             }
           >

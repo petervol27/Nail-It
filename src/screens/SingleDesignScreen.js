@@ -121,7 +121,6 @@ const SingleDesignScreen = ({ route, navigation }) => {
       console.error('Error toggling like:', error);
     }
   };
-
   return (
     <View style={styles.container}>
       <Header />
@@ -170,9 +169,21 @@ const SingleDesignScreen = ({ route, navigation }) => {
                         {likesCount} likes
                       </Text>
                       <Text style={styles.title}>{design.title}</Text>
-                      <Text style={styles.creator}>
-                        {design.creatorName} | {design.creatorCountry}
-                      </Text>
+                      <TouchableOpacity
+                        onPress={() => {
+                          if (design.creatorId !== user.uid) {
+                            navigation.navigate('UserProfile', {
+                              userId: design.creatorId,
+                            });
+                          } else {
+                            navigation.navigate('MyProfile'); // ✅ Redirect to own profile
+                          }
+                        }}
+                      >
+                        <Text style={styles.creatorText}>
+                          {design.creatorName}, {design.creatorCountry}
+                        </Text>
+                      </TouchableOpacity>
                       <Text style={styles.secondaryText}>
                         {timeAgo(design.createdAt)}
                       </Text>

@@ -21,6 +21,8 @@ import plusIcon from '../assets/icons/plusIcon.png';
 import notificationIcon from '../assets/icons/notification.png';
 import messageIcon from '../assets/icons/message.png';
 import logo from '../assets/images/logo.png';
+import UserProfileScreen from '../screens/UserProfileScreen';
+import FollowersListScreen from '../screens/FollowerListScreen';
 // import { useNavigation } from '@react-navigation/native';
 const Tab = createBottomTabNavigator();
 const HomeStack = createStackNavigator(); // ✅ Create a stack navigator for Home
@@ -31,6 +33,8 @@ const HomeStackNavigator = () => {
     <HomeStack.Navigator screenOptions={{ headerShown: false }}>
       <HomeStack.Screen name="HomeMain" component={HomeScreen} />
       <HomeStack.Screen name="SingleDesign" component={SingleDesignScreen} />
+      <HomeStack.Screen name="UserProfile" component={UserProfileScreen} />
+      <HomeStack.Screen name="FollowersList" component={FollowersListScreen} />
     </HomeStack.Navigator>
   );
 };

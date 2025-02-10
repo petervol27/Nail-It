@@ -83,25 +83,70 @@ export const getUserDocument = async (userId) => {
   }
 };
 
-/**
- * Add a follower to the nailCrew array.
- * @param {string} userId - The Firebase Auth user ID.
- * @param {string} followerId - The follower's user ID.
- * @returns {Promise<string>} A success message.
- */
-export const addFollower = async (userId, followerId) => {
-  const userRef = doc(firestore, 'users', userId);
-
+export const getUserById = async (userId) => {
   try {
-    await updateDoc(userRef, {
-      nailCrew: arrayUnion(followerId),
-    });
-    return 'Follower added successfully';
+    const userRef = doc(firestore, 'users', userId);
+    const userSnap = await getDoc(userRef);
+
+    if (userSnap.exists()) {
+      return { id: userSnap.id, ...userSnap.data() };
+    } else {
+      console.error('User not found.');
+      return null;
+    }
   } catch (error) {
-    throw new Error('Error adding follower: ' + error.message);
+    console.error('Error fetching user profile:', error);
+    return null;
   }
 };
 
+// 🔥 Follow another user
+export const followUser = async (currentUserId, targetUserId) => {
+  try {
+    const currentUserRef = doc(firestore, 'users', currentUserId);
+    const targetUserRef = doc(firestore, 'users', targetUserId);
+
+    // Add target user to current user's "following" list
+    await updateDoc(currentUserRef, {
+      nailCrewFollowing: arrayUnion(targetUserId),
+    });
+
+    // Add current user to target user's "followers" list
+    await updateDoc(targetUserRef, {
+      nailCrewFollowers: arrayUnion(currentUserId),
+    });
+
+    console.log('User followed successfully!');
+    return true;
+  } catch (error) {
+    console.error('Error following user:', error);
+    return false;
+  }
+};
+
+// 🔥 Unfollow another user
+export const unfollowUser = async (currentUserId, targetUserId) => {
+  try {
+    const currentUserRef = doc(firestore, 'users', currentUserId);
+    const targetUserRef = doc(firestore, 'users', targetUserId);
+
+    // Remove target user from current user's "following" list
+    await updateDoc(currentUserRef, {
+      nailCrewFollowing: arrayRemove(targetUserId),
+    });
+
+    // Remove current user from target user's "followers" list
+    await updateDoc(targetUserRef, {
+      nailCrewFollowers: arrayRemove(currentUserId),
+    });
+
+    console.log('User unfollowed successfully!');
+    return true;
+  } catch (error) {
+    console.error('Error unfollowing user:', error);
+    return false;
+  }
+};
 // ---------------------------------------------
 // Designs
 
@@ -145,27 +190,6 @@ export const getDesigns = async () => {
     return [];
   }
 };
-
-// export const toggledSavedDesign = async (userId, designId) => {
-//   try {
-//     const userRef = doc(firestore, 'users', userId);
-//     const userDoc = await getDoc(userRef);
-//     if (!userDoc.exists()) {
-//       console.error('User document not found.');
-//       return;
-//     }
-//     const userData = userDoc.data();
-//     const isSaved = userData.savedDesigns?.includes(designId);
-//     await updateDoc(userRef, {
-//       savedDesigns: isSaved ? arrayRemove(designId) : arrayUnion(designId),
-//     });
-//     console.log(
-//       isSaved ? 'Design removed from saved list' : 'Design saved successfully'
-//     );
-//   } catch (error) {
-//     console.error('Error toggling saved design:', error);
-//   }
-// };
 
 export const toggleLikeDesign = async (designId, userId) => {
   try {

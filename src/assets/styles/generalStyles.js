@@ -78,11 +78,22 @@ const generalStyles = StyleSheet.create({
     color: '#fff',
     textAlign: 'center',
   },
+  buttonTextSM: {
+    fontSize: 14,
+    color: '#fff',
+    textAlign: 'center',
+  },
   buttonContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
+  buttonFollowing: {
+    backgroundColor: '#834189',
+    width: '30%',
+    height: 41,
+  },
+  buttonFollow: { backgroundColor: '#000', width: '30%', height: 41 },
 
   // Text Styles ---------------------------------------
   // Inputs

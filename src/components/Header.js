@@ -13,7 +13,7 @@ import AppIcon from './AppIcon';
 import backIcon from '../assets/icons/goBackIcon.png';
 import editIcon from '../assets/icons/editIcon.png';
 
-const Header = () => {
+const Header = ({ isFollowing, onFollowToggle }) => {
   const { user } = useContext(UserContext);
   const nav = useNavigation();
   const [headerText, setHeaderText] = useState('');
@@ -61,6 +61,20 @@ const Header = () => {
           generalStyles.titleHeaderSmall,
         ]);
         setHeaderIcon(backIcon);
+        break;
+      case 'UserProfile':
+        setHeaderText('');
+        setHeaderIcon(backIcon);
+        break;
+      case 'FollowersList':
+        setHeaderText('My nail art crew');
+        setHeaderStyle([
+          generalStyles.title,
+          generalStyles.titleHeader,
+          generalStyles.titleHeaderSmall,
+        ]);
+        setHeaderIcon(backIcon);
+        break;
     }
   }, [currentScreen]);
 
@@ -83,6 +97,22 @@ const Header = () => {
               onPress={() => nav.navigate('EditProfile')}
             >
               <AppIcon iconSource={editIcon} color={'#040404'} size={24} />
+            </TouchableOpacity>
+          )}
+          {currentScreen === 'UserProfile' && (
+            <TouchableOpacity
+              style={[
+                styles.followContainer,
+                generalStyles.button,
+                isFollowing
+                  ? [generalStyles.buttonFollowing]
+                  : [generalStyles.buttonFollow],
+              ]}
+              onPress={onFollowToggle}
+            >
+              <Text style={generalStyles.buttonTextSM}>
+                {isFollowing ? 'Following' : 'Follow'}
+              </Text>
             </TouchableOpacity>
           )}
         </View>
@@ -115,5 +145,9 @@ const styles = StyleSheet.create({
   editIconContainer: {
     position: 'absolute',
     right: 20, // ✅ Moves edit button to the far right
+  },
+  followContainer: {
+    position: 'absolute',
+    right: 5,
   },
 });
