@@ -53,6 +53,14 @@ const Header = () => {
         ]);
         setHeaderIcon(backIcon);
         break;
+      case 'EditProfile':
+        setHeaderText('Edit Profile');
+        setHeaderStyle([
+          generalStyles.title,
+          generalStyles.titleHeader,
+          generalStyles.titleHeaderSmall,
+        ]);
+        setHeaderIcon(backIcon);
     }
   }, [currentScreen]);
 
