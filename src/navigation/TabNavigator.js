@@ -9,7 +9,6 @@ import SavedScreen from '../screens/SavedScreen';
 import NotificationScreen from '../screens/NotificationScreen';
 import UserProfileScreen from '../screens/UserProfileScreen';
 import FollowersListScreen from '../screens/FollowerListScreen';
-// import UploadPreviewScreen from '../screens/UploadPreviewScreen'; // ✅ Import Upload Previewrrr
 import UploadModal from '../components/UploadModal';
 import AppIcon from '../components/AppIcon';
 import { UserContext } from '../context/UserContext';
@@ -18,10 +17,12 @@ import { UserContext } from '../context/UserContext';
 import homeIcon from '../assets/icons/home.png';
 import profileIcon from '../assets/icons/profile.png';
 import savedIcon from '../assets/icons/heart.png';
-import plusIcon from '../assets/icons/plusCircle.png';
+import plusIcon from '../assets/icons/plusIcon.png';
 import notificationIcon from '../assets/icons/notification.png';
 import messageIcon from '../assets/icons/message.png';
-import logo from '../assets/images/logo.png';
+import logo from '../assets/icons/logo.png';
+import UploadPreviewScreen from '../screens/UploadPreviewScreen';
+import InstructionsScreen from '../screens/InstructionsScreen';
 
 const Tab = createBottomTabNavigator();
 const HomeStack = createStackNavigator();
@@ -32,6 +33,8 @@ const HomeStackNavigator = () => (
     <HomeStack.Screen name="SingleDesign" component={SingleDesignScreen} />
     <HomeStack.Screen name="UserProfile" component={UserProfileScreen} />
     <HomeStack.Screen name="FollowersList" component={FollowersListScreen} />
+    <HomeStack.Screen name="UploadPreview" component={UploadPreviewScreen} />
+    <HomeStack.Screen name="Instructions" component={InstructionsScreen} />
   </HomeStack.Navigator>
 );
 
@@ -101,13 +104,15 @@ const TabNavigator = () => {
           name="Upload"
           component={View}
           options={{
+            headerTransparent: true,
             tabBarButton: () => (
               <TouchableOpacity
                 style={styles.uploadButton}
                 onPress={() => setModalVisible(true)}
+                activeOpacity={1}
               >
                 <View style={styles.iconWrapper}>
-                  <AppIcon iconSource={plusIcon} size={30} color={'#C85D7C'} />
+                  <AppIcon iconSource={plusIcon} size={42} color={'#C85D7C'} />
                 </View>
               </TouchableOpacity>
             ),
@@ -131,8 +136,8 @@ export default TabNavigator;
 
 const styles = StyleSheet.create({
   logo: {
-    width: 80,
-    height: 31,
+    width: 67,
+    height: 33,
     resizeMode: 'contain',
     marginStart: 12,
   },
@@ -144,11 +149,16 @@ const styles = StyleSheet.create({
   },
   uploadButton: {
     position: 'absolute',
-    top: -20, // ✅ Keeps button slightly above tab bar
-    borderRadius: 30,
+    top: -30, // ✅ Moves button slightly above tab bar
+    borderWidth: 2,
+    width: 72, // ✅ Adjust size to fit the icon circle properly
+    height: 72,
+    borderRadius: 35, // ✅ Ensures it remains a perfect circle
+    borderColor: '#C85D7C',
     backgroundColor: 'white',
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 10, // ✅ Adds internal spacing
     elevation: 5,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },

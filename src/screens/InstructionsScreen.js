@@ -5,11 +5,10 @@ import instructions1 from '../assets/images/instructions1.png';
 import instructions2 from '../assets/images/instructions2.png';
 import instructions3 from '../assets/images/instructions3.png';
 import { UserContext } from '../context/UserContext';
-import { updateUserDocument } from '../utils/firestore';
-const InstructionScreen = ({ navigation }) => {
+import { updateUserHasSeenInstructions } from '../utils/firestore';
+const InstructionsScreen = ({ navigation }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const { user, setUser } = useContext(UserContext);
-
   const steps = [
     {
       image: instructions1,
@@ -30,10 +29,13 @@ const InstructionScreen = ({ navigation }) => {
       setCurrentStep((prevStep) => prevStep + 1);
     } else {
       try {
-        await updateUserDocument(user.uid, { hasSeenInstructions: true });
-        setUser({ ...user, hasSeenInstructions: true });
+        const success = await updateUserHasSeenInstructions(user.uid);
+        if (success) {
+          setUser((prevUser) => ({ ...prevUser, hasSeenInstructions: true }));
+          navigation.replace('HomeMain');
+        }
       } catch (error) {
-        console.log('Error updating doc: ', error);
+        console.log('Error updating Firestore:', error);
       }
     }
   };
@@ -54,7 +56,7 @@ const InstructionScreen = ({ navigation }) => {
         <TouchableOpacity
           style={[
             generalStyles.button,
-            generalStyles.buttonBlackSM,
+            generalStyles.buttonBlack,
             generalStyles.smallestButton,
           ]}
           onPress={handleNext}
@@ -71,7 +73,6 @@ const InstructionScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: -20,
   },
   topContainer: {
     flex: 0.5,
@@ -86,4 +87,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default InstructionScreen;
+export default InstructionsScreen;

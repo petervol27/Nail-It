@@ -89,10 +89,10 @@ const ProfileScreen = ({ navigation }) => {
               {/* 🔥 Followers & Following */}
               <View style={styles.followContainer}>
                 <Text style={styles.followText}>
-                  {user.nailCrewFollowers.length} Followers
+                  {(user?.nailCrewFollowers ?? []).length} Followers
                 </Text>
                 <Text style={styles.followText}>
-                  {user.nailCrewFollowing.length} Following
+                  {(user?.nailCrewFollowing ?? []).length} Following
                 </Text>
               </View>
             </View>

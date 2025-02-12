@@ -3,8 +3,7 @@ import { View, Text, Modal, TouchableOpacity, StyleSheet } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useNavigation } from '@react-navigation/native';
 import AppIcon from './AppIcon';
-import cameraIcon from '../assets/icons/camera.png';
-// import galleryIcon from '../assets/icons/galleryIcon.png';
+import generalStyles from '../assets/styles/generalStyles';
 
 const UploadModal = ({ visible, onClose }) => {
   const navigation = useNavigation();
@@ -26,37 +25,44 @@ const UploadModal = ({ visible, onClose }) => {
 
     if (!result.canceled) {
       onClose();
-      navigation.navigate('UploadPreview', { imageUri: result.assets[0].uri });
+      navigation.navigate('Main', {
+        screen: 'Home',
+        params: {
+          screen: 'UploadPreview',
+          params: { imageUri: result.assets[0].uri },
+        },
+      });
     }
   };
 
   return (
-    <Modal visible={visible} transparent animationType="slide">
-      <View style={styles.modalContainer}>
+    <Modal visible={visible} transparent animationType="fade">
+      {/* ✅ Close modal when clicking outside */}
+      <TouchableOpacity
+        style={styles.modalContainer}
+        activeOpacity={1}
+        onPress={onClose}
+      >
         <View style={styles.modalContent}>
-          <Text style={styles.modalTitle}>Upload Image</Text>
-
           <TouchableOpacity
-            style={styles.optionButton}
+            style={[
+              generalStyles.button,
+              generalStyles.buttonMain,
+              generalStyles.marginBtmSM,
+            ]}
             onPress={() => handleImagePick(false)}
           >
-            <AppIcon iconSource={cameraIcon} size={24} />
             <Text style={styles.optionText}>Choose from Gallery</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.optionButton}
+            style={[generalStyles.button, generalStyles.buttonMain]}
             onPress={() => handleImagePick(true)}
           >
-            <AppIcon iconSource={cameraIcon} size={24} />
             <Text style={styles.optionText}>Take a Photo</Text>
           </TouchableOpacity>
-
-          <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
-            <Text style={styles.cancelText}>Cancel</Text>
-          </TouchableOpacity>
         </View>
-      </View>
+      </TouchableOpacity>
     </Modal>
   );
 };
@@ -72,7 +78,8 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     backgroundColor: 'white',
-    padding: 20,
+    paddingHorizontal: 60,
+    paddingVertical: 100,
     borderRadius: 10,
     width: '80%',
     alignItems: 'center',
@@ -96,12 +103,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: 'white',
     marginLeft: 10,
-  },
-  cancelButton: {
-    marginTop: 10,
-  },
-  cancelText: {
-    color: 'red',
-    fontSize: 16,
   },
 });

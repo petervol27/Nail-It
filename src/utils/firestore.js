@@ -48,6 +48,17 @@ export const createUserDocument = async (userId, userData) => {
   }
 };
 
+export const updateUserHasSeenInstructions = async (userId) => {
+  try {
+    const userRef = doc(firestore, 'users', userId);
+    await updateDoc(userRef, { hasSeenInstructions: true });
+    console.log('User hasSeenInstructions updated successfully!');
+    return true;
+  } catch (error) {
+    console.error('Error updating user instructions status:', error);
+    return false;
+  }
+};
 /**
  * Update user data in Firestore.
  * @param {string} userId - The Firebase Auth user ID.

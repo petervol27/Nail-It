@@ -70,9 +70,7 @@ const generalStyles = StyleSheet.create({
     height: 48,
     width: '90%',
   },
-  buttonBlackSM: {
-    backgroundColor: '#000',
-  },
+
   buttonText: {
     fontSize: 16,
     color: '#fff',

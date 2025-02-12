@@ -28,13 +28,26 @@ const HomeScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
   const underlinePosition = useRef(new Animated.Value(0)).current;
 
+  const hasCheckedInstructions = useRef(false); // ✅ Prevents infinite loop
+
+  useEffect(() => {
+    if (!hasCheckedInstructions.current && user && !user.hasSeenInstructions) {
+      hasCheckedInstructions.current = true; // ✅ Ensures it runs only once
+      setTimeout(() => {
+        navigation.replace('Instructions'); // ✅ Uses replace to avoid back button issue
+      }, 100);
+    }
+  }, [user]); // ✅ Runs only when user updates
+
   useEffect(() => {
     Animated.timing(underlinePosition, {
       toValue: filterDesigns === 'all' ? 10 : tabWidth + 10,
       duration: 300,
       useNativeDriver: false,
     }).start();
+  }, [filterDesigns]); // ✅ Runs only when filter changes
 
+  useEffect(() => {
     const fetchDesigns = async () => {
       setLoading(true);
       try {
@@ -46,8 +59,12 @@ const HomeScreen = ({ navigation }) => {
       setLoading(false);
     };
 
+    if (user?.nailCrewFollowing && Array.isArray(user.nailCrewFollowing)) {
+      setFollowing(user.nailCrewFollowing); // ✅ Ensures following is set correctly
+    }
+
     fetchDesigns();
-  }, [filterDesigns]);
+  }, [filterDesigns, user]); // ✅ Ensures correct dependency handling
 
   const filteredDesigns =
     filterDesigns === 'all'

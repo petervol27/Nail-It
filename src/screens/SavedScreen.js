@@ -6,6 +6,7 @@ import {
   ScrollView,
   RefreshControl,
   TouchableOpacity,
+  Touchable,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import generalStyles from '../assets/styles/generalStyles';
@@ -47,12 +48,6 @@ const SavedScreen = () => {
         onPress={() => logoutUser()}
       >
         <Text style={generalStyles.buttonText}>Log Out</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={[generalStyles.button, generalStyles.buttonMain]}
-        onPress={() => navigation.navigate('Test')}
-      >
-        <Text style={generalStyles.buttonText}>Test Uplaod</Text>
       </TouchableOpacity>
     </ScrollView>
   );
