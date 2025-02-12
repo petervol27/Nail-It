@@ -18,7 +18,7 @@ import { UserContext } from '../context/UserContext';
 import homeIcon from '../assets/icons/home.png';
 import profileIcon from '../assets/icons/profile.png';
 import savedIcon from '../assets/icons/heart.png';
-import plusIcon from '../assets/icons/plusCircle.png';
+import plusIcon from '../assets/icons/plusIcon.png';
 import notificationIcon from '../assets/icons/notification.png';
 import messageIcon from '../assets/icons/message.png';
 import logo from '../assets/images/logo.png';
@@ -106,9 +106,7 @@ const TabNavigator = () => {
                 style={styles.uploadButton}
                 onPress={() => setModalVisible(true)}
               >
-                <View style={styles.iconWrapper}>
-                  <AppIcon iconSource={plusIcon} size={30} color={'#C85D7C'} />
-                </View>
+                <AppIcon iconSource={plusIcon} size={30} color={'white'} />
               </TouchableOpacity>
             ),
           }}
@@ -141,18 +139,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginEnd: 12,
     gap: 10,
-  },
-  uploadButton: {
-    position: 'absolute',
-    top: -20, // ✅ Keeps button slightly above tab bar
-    borderRadius: 30,
-    backgroundColor: 'white',
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
   },
 });
