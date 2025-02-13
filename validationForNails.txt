@@ -1,0 +1,94 @@
+Firebase ML Kit offers an on-device image labeling feature that can detect common objects and concepts in photos. It doesn’t require an internet connection for basic labeling, but if you want more advanced results, you might need to use Google Cloud Vision (which requires enabling billing).
+
+How Firebase ML Kit Works for Image Labeling:
+User uploads an image.
+Firebase ML Kit analyzes the image locally on the device.
+It returns labels like "nail", "finger", "hand", "manicure", "cosmetics", etc.
+If the labels don’t match the allowed list, we reject the upload and show a warning.
+If they do match, we proceed to upload the image to Firebase Storage.
+Does it come included with Firebase?
+Yes for the on-device image labeling (no billing needed).
+No if you want Cloud Vision API — that requires Google Cloud with billing enabled.
+🔧 Step-by-Step Firebase ML Kit Integration
+1️⃣ Install Firebase ML Kit
+bash
+Copy
+Edit
+expo install @react-native-firebase/app @react-native-firebase/ml
+2️⃣ Enable ML Kit in Firebase Console
+Go to Firebase Console → Build → Machine Learning.
+Enable the Image Labeling API.
+3️⃣ Add Firebase Config (if not already done)
+Ensure google-services.json for Android and GoogleService-Info.plist for iOS are correctly placed.
+4️⃣ Code for Image Labeling
+Here’s a simple function to analyze the image before uploading:
+
+javascript
+Copy
+Edit
+import ml from '@react-native-firebase/ml';
+
+// 🔍 Image validation before upload
+export const validateImage = async (imageUri) => {
+  try {
+    // ✅ Analyze the image
+    const labels = await ml().cloudImageLabelerProcessImage(imageUri);
+    
+    // 🎯 Allowed keywords
+    const allowedKeywords = ['nail', 'hand', 'finger', 'manicure', 'cosmetics'];
+    
+    // 🔍 Check labels
+    const matches = labels.some(label => 
+      allowedKeywords.some(keyword => label.text.toLowerCase().includes(keyword))
+    );
+
+    if (matches) {
+      console.log('✅ Image accepted (Nail-related)');
+      return true;
+    } else {
+      console.log('❌ Image rejected (Not related to nails)');
+      return false;
+    }
+  } catch (error) {
+    console.error('Error during image labeling:', error);
+    return false;
+  }
+};
+5️⃣ Integrate with Upload Flow
+Modify your upload logic like this:
+
+javascript
+Copy
+Edit
+const handleUpload = async () => {
+  // 🖼️ Validate Image
+  const isValid = await validateImage(imageUri);
+  if (!isValid) {
+    alert('Image does not appear to show nails. Please try again.');
+    return;
+  }
+
+  // 📤 Proceed with upload
+  const downloadUrl = await uploadImageToFirebase(imageUri);
+  if (downloadUrl) {
+    const designData = {
+      title: designTitle,
+      imageUrl: downloadUrl,
+      creatorId: user.uid,
+      private: uploadType === 'private',
+    };
+    await createDesign(designData);
+    alert('Design uploaded successfully!');
+    navigation.navigate(uploadType === 'private' ? 'MyProfile' : 'HomeMain');
+  }
+};
+🧠 How It Works
+ML Kit analyzes the image.
+We look for labels related to nails (adjustable with your own keywords).
+If the labels don’t match, we stop the upload.
+If they do match, we upload the image as usual.
+⚠️ Limitations
+Accuracy: On-device models are simpler than cloud-based ones.
+Performance: On-device models are fast but may misclassify uncommon nail designs.
+Customization: For more control, consider training a custom model with Firebase AutoML.
+Would you like me to add better feedback messages for users when images are rejected or explore Cloud Vision for higher accuracy? 🌸💅
