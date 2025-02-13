@@ -58,10 +58,7 @@ const App = () => {
         ) : (
           <>
             <Stack.Screen name="Main" component={TabNavigator} />
-            {/* <Stack.Screen name="SingleDesign" component={SingleDesignScreen} /> */}
-            <Stack.Screen name="Test" component={UploadDesignScreen} />
             <Stack.Screen name="EditProfile" component={EditProfileScreen} />
-            {/* <Stack.Screen name="UserProfile" component={UserProfileScreen} /> */}
           </>
         )}
       </Stack.Navigator>

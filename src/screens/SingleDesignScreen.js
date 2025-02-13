@@ -10,8 +10,6 @@ import {
   Modal,
   Alert,
   Share,
-  BackHandler,
-  Platform,
 } from 'react-native';
 import { UserContext } from '../context/UserContext';
 import {
@@ -29,9 +27,8 @@ import Header from '../components/Header';
 import { timeAgo } from '../helpers';
 import generalStyles from '../assets/styles/generalStyles';
 import Spinner from '../components/Spinner';
-import * as FileSystem from 'expo-file-system';
-import * as MediaLibrary from 'expo-media-library';
-import { useFocusEffect } from '@react-navigation/native';
+
+import { downloadImage } from '../helpers';
 const SingleDesignScreen = ({ route, navigation }) => {
   const { design, previousScreen } = route.params || {};
   const { user } = useContext(UserContext);
@@ -87,28 +84,9 @@ const SingleDesignScreen = ({ route, navigation }) => {
       Alert.alert('Error', 'Could not share the design.');
     }
   };
-  const downloadImage = async (imageUrl, setDownloading) => {
-    try {
-      setDownloading(true);
 
-      const { status } = await MediaLibrary.requestPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Premission required');
-        setDownloading(false);
-        return;
-      }
-      const fileName = imageUrl.split('/').pop();
-      const fileUri = `${FileSystem.documentDirectory}${fileName}`;
-      const downloadedFile = await FileSystem.downloadAsync(imageUrl, fileUri);
-      const asset = await MediaLibrary.createAssetAsync(downloadedFile.uri);
-      await MediaLibrary.createAlbumAsync('Nail It Designs', asset, false);
-      Alert.alert('Download Succesful!');
-    } catch (error) {
-      console.log(error);
-      Alert.alert(error);
-    } finally {
-      setDownloading(false);
-    }
+  const handleDownload = () => {
+    downloadImage(design.imageUrl, setDownloading);
   };
 
   const toggleLike = async () => {
@@ -198,7 +176,7 @@ const SingleDesignScreen = ({ route, navigation }) => {
                       </TouchableOpacity>
                       <TouchableOpacity
                         onPress={() =>
-                          downloadImage(design.imageUrl, setDownloading)
+                          handleDownload(design.imageUrl, setDownloading)
                         }
                       >
                         <AppIcon

@@ -1,4 +1,10 @@
-import React, { useContext, useEffect, useState, useRef } from 'react';
+import React, {
+  useContext,
+  useState,
+  useRef,
+  useCallback,
+  useEffect,
+} from 'react';
 import {
   View,
   Text,
@@ -9,6 +15,7 @@ import {
   Animated,
   Dimensions,
 } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { UserContext } from '../context/UserContext';
 import {
   getUserUploadedDesigns,
@@ -28,6 +35,8 @@ const ProfileScreen = ({ navigation }) => {
   const [savedDesigns, setSavedDesigns] = useState([]);
   const underlinePosition = useRef(new Animated.Value(15)).current;
   const [followersData, setFollowersData] = useState([]);
+
+  // 🔄 Move underline when switching tabs
   useEffect(() => {
     Animated.timing(underlinePosition, {
       toValue: activeTab === 'Gallery' ? 15 : tabWidth - 85,
@@ -36,36 +45,40 @@ const ProfileScreen = ({ navigation }) => {
     }).start();
   }, [activeTab]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!user) return;
+  // 🔄 Fetch designs whenever screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      const fetchData = async () => {
+        if (!user) return;
 
-      const uploadedDesigns = await getUserUploadedDesigns(user.uid);
-      const savedDesignsData = await getSavedDesigns(user.uid);
+        const uploadedDesigns = await getUserUploadedDesigns(user.uid);
+        const savedDesignsData = await getSavedDesigns(user.uid);
+        setGalleryDesigns(uploadedDesigns);
+        setSavedDesigns(savedDesignsData);
+      };
 
-      setGalleryDesigns(uploadedDesigns);
-      setSavedDesigns(savedDesignsData);
-    };
-    const fetchFollowers = async () => {
-      if (!user.nailCrewFollowers || user.nailCrewFollowers.length === 0)
-        return;
+      const fetchFollowers = async () => {
+        if (!user.nailCrewFollowers || user.nailCrewFollowers.length === 0)
+          return;
 
-      try {
-        const followersDetails = await Promise.all(
-          user.nailCrewFollowers.map(async (followerId) => {
-            const followerData = await getUserById(followerId);
-            return { id: followerId, ...followerData }; // ✅ Combine ID + data
-          })
-        );
-        setFollowersData(followersDetails);
-      } catch (error) {
-        console.error('Error fetching followers:', error);
-      }
-    };
+        try {
+          const followersDetails = await Promise.all(
+            user.nailCrewFollowers.map(async (followerId) => {
+              const followerData = await getUserById(followerId);
+              return { id: followerId, ...followerData };
+            })
+          );
+          setFollowersData(followersDetails);
+        } catch (error) {
+          console.error('Error fetching followers:', error);
+        }
+      };
 
-    fetchData();
-    fetchFollowers();
-  }, [user, user.nailCrewFollowers]);
+      // 🔄 Run both tasks concurrently for efficiency
+      fetchData();
+      fetchFollowers();
+    }, [user])
+  );
 
   return (
     <View style={styles.container}>

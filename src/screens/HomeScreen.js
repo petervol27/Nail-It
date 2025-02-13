@@ -52,7 +52,8 @@ const HomeScreen = ({ navigation }) => {
       setLoading(true);
       try {
         const designList = await getDesigns();
-        setDesigns(designList);
+        const publicDesigns = designList.filter((design) => !design.private);
+        setDesigns(publicDesigns);
       } catch (error) {
         console.error('Error fetching designs:', error);
       }
