@@ -54,7 +54,7 @@ const SingleDesignScreen = ({ route, navigation }) => {
     const fetchRelatedDesigns = async () => {
       const allDesigns = await getDesigns();
       const filteredDesigns = allDesigns.filter(
-        (item) => item.id !== design.id
+        (item) => item.id !== design.id && item.private !== true
       );
       setRelatedDesigns(filteredDesigns.slice(0, 6));
     };
